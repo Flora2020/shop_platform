@@ -15,6 +15,8 @@ class User(db.Model):
     role = db.Column(db.String(10), nullable=False, default='user')
     insert_time = db.Column(db.DateTime, nullable=False, default=datetime.now)
     update_time = db.Column(db.DateTime, onupdate=datetime.now, nullable=False, default=datetime.now)
+    delivery_orders = db.relationship('Order', back_populates='seller')
+    purchase_order = db.relationship('Order', back_populates='buyer')
 
     def __repr__(self):
         return f'<User {self.email}>'

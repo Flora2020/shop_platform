@@ -9,6 +9,7 @@ class PaymentStatus(db.Model):
     status = db.Column(db.String(60), unique=True, nullable=False)
     insert_time = db.Column(db.DateTime, nullable=False, default=datetime.now)
     update_time = db.Column(db.DateTime, onupdate=datetime.now, nullable=False, default=datetime.now)
+    orders = db.relationship('Order', back_populates='payment_status')
 
     def __repr__(self):
         return f'<PaymentStatus {self.status}>'
