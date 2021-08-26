@@ -8,6 +8,9 @@ class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     insert_time = db.Column(db.DateTime, nullable=False, default=datetime.now)
     update_time = db.Column(db.DateTime, onupdate=datetime.now, nullable=False, default=datetime.now)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    user = db.relationship('User', back_populates='cart')
     products = db.relationship('CartItem', back_populates='cart')
 
     def __repr__(self):
