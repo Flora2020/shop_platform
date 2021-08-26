@@ -22,6 +22,7 @@ class Order(db.Model):
     shopping_status = db.relationship('ShoppingStatus', back_populates='orders')
     payment_status = db.relationship('PaymentStatus', back_populates='orders')
     payments = db.relationship('Payment', back_populates='order')
+    products = db.relationship('OrderItem', back_populates='order')
 
     def __repr__(self):
         return f'<Order {self.id}>'

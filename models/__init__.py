@@ -7,3 +7,4 @@ from models.shopping_status import ShoppingStatus
 from models.payment_status import PaymentStatus
 from models.order import Order
 from models.payment import Payment
+from models.order_item import OrderItem
