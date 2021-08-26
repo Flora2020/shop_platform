@@ -17,6 +17,7 @@ class User(db.Model):
     update_time = db.Column(db.DateTime, onupdate=datetime.now, nullable=False, default=datetime.now)
 
     cart = db.relationship('Cart', back_populates='user', uselist=False)
+    for_sale = db.relationship('Product', back_populates='seller')
     delivery_orders = db.relationship('Order', back_populates='seller')
     purchase_order = db.relationship('Order', back_populates='buyer')
 

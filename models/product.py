@@ -13,7 +13,11 @@ class Product(db.Model):
     description = db.Column(db.String(2000))
     insert_time = db.Column(db.DateTime, nullable=False, default=datetime.now)
     update_time = db.Column(db.DateTime, onupdate=datetime.now, nullable=False, default=datetime.now)
+    seller_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
 
+    seller = db.relationship('User', back_populates='for_sale')
+    category = db.relationship('Category', back_populates='products')
     carts = db.relationship('CartItem', back_populates='product')
     orders = db.relationship('OrderItem', back_populates='product')
 

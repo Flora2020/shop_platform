@@ -10,6 +10,8 @@ class Category(db.Model):
     insert_time = db.Column(db.DateTime, nullable=False, default=datetime.now)
     update_time = db.Column(db.DateTime, onupdate=datetime.now, nullable=False, default=datetime.now)
 
+    products = db.relationship('Product', back_populates='category')
+
     def __repr__(self):
         return f'<Category {self.name}>'
 
