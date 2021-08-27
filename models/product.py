@@ -20,6 +20,7 @@ class Product(db.Model):
     category = db.relationship('Category', back_populates='products')
     carts = db.relationship('CartItem', back_populates='product')
     orders = db.relationship('OrderItem', back_populates='product')
+    questions = db.relationship('Question', back_populates='product')
 
     def __repr__(self):
         return f'<Product id: {self.id}, name: {self.name}>'

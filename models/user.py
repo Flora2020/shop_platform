@@ -20,8 +20,9 @@ class User(db.Model):
     for_sale = db.relationship('Product', back_populates='seller')
     delivery_orders = db.relationship('Order', back_populates='seller')
     purchase_order = db.relationship('Order', back_populates='buyer')
-    rating_record = db.relationship('Rating', back_populates="rater")
-    rated_record = db.relationship('Rating', back_populates="ratee")
+    rating_record = db.relationship('Rating', back_populates='rater')
+    rated_record = db.relationship('Rating', back_populates='ratee')
+    asked_questions = db.relationship('Question', back_populates='author')
 
     def __repr__(self):
         return f'<User {self.email}>'

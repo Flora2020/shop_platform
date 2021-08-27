@@ -9,3 +9,4 @@ from models.order import Order
 from models.payment import Payment
 from models.order_item import OrderItem
 from models.rating import Rating
+from models.question import Question
