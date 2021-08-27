@@ -23,6 +23,7 @@ class User(db.Model):
     rating_record = db.relationship('Rating', back_populates='rater')
     rated_record = db.relationship('Rating', back_populates='ratee')
     asked_questions = db.relationship('Question', back_populates='author')
+    replies = db.relationship('Reply', back_populates='author')
 
     def __repr__(self):
         return f'<User {self.email}>'
