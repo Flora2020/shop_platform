@@ -14,6 +14,7 @@ class OrderItem(db.Model):
 
     order = db.relationship('Order', back_populates='products')
     product = db.relationship('Product', back_populates='orders')
+    rating = db.relationship('Rating', back_populates='order_item', uselist=False)
 
     def __repr__(self):
         return f'<OrderItem {self.id}>'
@@ -25,7 +26,7 @@ class OrderItem(db.Model):
     @classmethod
     def find_by_order_id(cls, order_id):
         return cls.query.filter_by(order_id=order_id).first()
-    
+
     @classmethod
     def find_by_product_id(cls, product_id):
         return cls.query.filter_by(product_id=product_id).first()
