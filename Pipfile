@@ -9,6 +9,7 @@ flask-sqlalchemy = "*"
 pymysql = "*"
 python-dotenv = "*"
 flask-migrate = "*"
+flask-seeder = "*"
 
 [dev-packages]
 
