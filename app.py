@@ -3,6 +3,7 @@ from flask import Flask
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_seeder import FlaskSeeder
 
 
 if os.environ.get('FLASK_ENV', '') != 'production':
@@ -13,6 +14,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+seeder = FlaskSeeder()
+seeder.init_app(app, db)
 
 
 @app.route('/')
