@@ -17,8 +17,8 @@ class Order(db.Model):
     shopping_status_id = db.Column(db.Integer, db.ForeignKey('shopping_status.id'))
     payment_status_id = db.Column(db.Integer, db.ForeignKey('payment_status.id'))
 
-    seller = db.relationship('User', back_populates='delivery_orders')
-    buyer = db.relationship('User', back_populates='purchase_order')
+    seller = db.relationship('User', primaryjoin='Order.seller_id == User.id', back_populates='delivery_orders')
+    buyer = db.relationship('User', primaryjoin='Order.buyer_id == User.id', back_populates='purchase_order')
     shopping_status = db.relationship('ShoppingStatus', back_populates='orders')
     payment_status = db.relationship('PaymentStatus', back_populates='orders')
     payments = db.relationship('Payment', back_populates='order')

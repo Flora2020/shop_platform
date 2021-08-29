@@ -18,10 +18,10 @@ class User(db.Model):
 
     cart = db.relationship('Cart', back_populates='user', uselist=False)
     for_sale = db.relationship('Product', back_populates='seller')
-    delivery_orders = db.relationship('Order', back_populates='seller')
-    purchase_order = db.relationship('Order', back_populates='buyer')
-    rating_record = db.relationship('Rating', back_populates='rater')
-    rated_record = db.relationship('Rating', back_populates='ratee')
+    delivery_orders = db.relationship('Order', primaryjoin='Order.seller_id == User.id', back_populates='seller')
+    purchase_order = db.relationship('Order', primaryjoin='Order.buyer_id == User.id', back_populates='buyer')
+    rating_record = db.relationship('Rating', primaryjoin='Rating.rater_id == User.id', back_populates='rater')
+    rated_record = db.relationship('Rating', primaryjoin='Rating.ratee_id == User.id', back_populates='ratee')
     asked_questions = db.relationship('Question', back_populates='author')
     replies = db.relationship('Reply', back_populates='author')
 

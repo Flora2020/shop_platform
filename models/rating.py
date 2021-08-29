@@ -22,8 +22,8 @@ class Rating(db.Model):
         ),
     )
 
-    rater = db.relationship('User', back_populates="rating_record")
-    ratee = db.relationship('User', back_populates="rated_record")
+    rater = db.relationship('User', primaryjoin='User.id == Rating.rater_id', back_populates="rating_record")
+    ratee = db.relationship('User', primaryjoin='User.id == Rating.ratee_id', back_populates="rated_record")
     order_item = db.relationship('OrderItem', back_populates="rating")
 
     def __repr__(self):
