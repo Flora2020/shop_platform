@@ -1,6 +1,6 @@
 from flask_seeder import Seeder, Faker, generator
 from models.user import User
-from seeds.custom_generator import Hash
+from seeds.custom_generator import Hash, ChineseTextHolder
 
 
 class UserSeeder(Seeder):
@@ -17,8 +17,8 @@ class UserSeeder(Seeder):
               'email': generator.Email(),
               'password': Hash('12345678'),
               'cell_phone': generator.String(pattern='(09)\d{8}'),
-              'address': generator.String(pattern='[a-z]{10,50}'),
-              'store_introduction': generator.String(pattern='[a-z]{50,1000}'),
+              'address': ChineseTextHolder(min_length=15, max_length=30),
+              'store_introduction': ChineseTextHolder(min_length=200, max_length=600),
               'role': generator.String(pattern='(user|admin)')
             }
         )
