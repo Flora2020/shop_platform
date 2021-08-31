@@ -1,28 +1,6 @@
-import os
 from flask_seeder import Seeder, Faker, generator
 from models import Category
-
-
-class CategoryName(generator.Generator):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._lines = None
-
-    @staticmethod
-    def read_resource(path):
-        path = os.path.dirname(os.path.abspath(__file__)) + path
-        print(path)
-        with open(path) as source:
-            lines = source.read().splitlines()
-
-        return lines
-
-    def generate(self):
-        if self._lines is None:
-            self._lines = self.read_resource('/data/categories.txt')
-        result = self.rnd.choice(self._lines)
-
-        return result
+from seeds.custom_generator import NameSequence
 
 
 class CategorySeeder(Seeder):
@@ -34,7 +12,7 @@ class CategorySeeder(Seeder):
             cls=Category,
             init={
               'id': generator.Sequence(),
-              'name': CategoryName()
+              'name': NameSequence('分類')
             }
         )
 
