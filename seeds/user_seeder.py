@@ -1,26 +1,18 @@
 from flask_seeder import Seeder, Faker, generator
 from models.user import User
-from passlib.hash import pbkdf2_sha256
-
-
-class Hash(generator.Generator):
-    def __init__(self, string, **kwargs):
-        super().__init__(**kwargs)
-        self.string = string
-
-    def generate(self):
-        return pbkdf2_sha256.hash(self.string)
+from seeds.custom_generator import Hash
 
 
 class UserSeeder(Seeder):
     priority = 0
 
     def run(self):
-        # Create a new Faker and tell it how to create User objects
+        number_of_user_seeds = 5
+
         faker = Faker(
             cls=User,
             init={
-              'id': generator.Sequence(),
+              'id': generator.Sequence(start=1, end=number_of_user_seeds),
               'display_name': generator.Name(),
               'email': generator.Email(),
               'password': Hash('12345678'),
@@ -31,7 +23,6 @@ class UserSeeder(Seeder):
             }
         )
 
-        # Create 5 users
-        for user in faker.create(5):
+        for user in faker.create(number_of_user_seeds):
             print('Adding user: %s' % user)
             self.db.session.add(user)

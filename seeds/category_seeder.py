@@ -7,16 +7,16 @@ class CategorySeeder(Seeder):
     priority = 5
 
     def run(self):
-        # Create a new Faker and tell it how to create User objects
+        number_of_category_seeds = 5
+
         faker = Faker(
             cls=Category,
             init={
-              'id': generator.Sequence(),
+              'id': generator.Sequence(start=1, end=number_of_category_seeds),
               'name': NameSequence('分類')
             }
         )
 
-        # Create 5 categories
-        for category in faker.create(5):
+        for category in faker.create(number_of_category_seeds):
             print('Adding category: %s' % category)
             self.db.session.add(category)
