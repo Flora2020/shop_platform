@@ -6,14 +6,15 @@
     {% for product in products %}
     <div class="col-sm-6 col-md-4 col-lg-3 mb-3">
         <div class="card border-0">
-            <img src="{{ product.image_url }}" class="card-img-top" alt="image of {{ product.name }}">
-            <div class="card-body">
-                <h5 class="card-title text-center products-card-title overflow-auto">{{ product.name }}</h5>
+            <a href="{{ url_for('products.get_product', product_id=product.id) }}">
+                <img src="{{ product.image_url }}" class="card-img-top" alt="image of {{ product.name }}">
+                <h5 class="card-title products-card-title text-center overflow-auto mt-2">{{ product.name }}</h5>
+            </a>
+            <div class="card-body pt-0">
                 <div class="d-flex justify-content-between">
                     <p class="card-text d-flex align-items-center mb-0">$ {{ product.price }}</p>
                     <i class="fa fa-cart-plus fa-2x"></i>
                 </div>
-
             </div>
         </div>
     </div>

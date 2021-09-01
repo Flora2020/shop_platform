@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card product-card mb-3 mx-auto border-0">
+    <div class="row g-0">
+        <div class="col-md-5 d-flex flex-column align-items-center">
+            <img src="{{product.image_url}}" class="img-fluid rounded-start" alt="product image">
+            <div class="d-flex justify-content-evenly w-100 mt-2">
+                <p class="card-text d-flex align-items-center mb-0">$ {{ product.price }}</p>
+                <i class="fa fa-cart-plus fa-2x"></i>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text">{{ product.description }}</p>
+                {% if product.update_time %}
+                <p class="card-text"><small class="text-muted">更新於：{{ product.update_time }}</small></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
