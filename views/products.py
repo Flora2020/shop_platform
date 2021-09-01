@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, url_for, request, render_template
+from flask import Blueprint, redirect, url_for, request, render_template, flash
 from models import Product
 from common.utils import pretty_date
 
@@ -15,6 +15,7 @@ def get_products():
 def get_product(product_id):
     if request.method == 'GET':
         if not product_id.isnumeric():
+            flash('查無此商品', 'warning')
             return redirect(url_for('home'))
 
         product = Product.find_by_id(product_id)
@@ -22,4 +23,5 @@ def get_product(product_id):
             product.update_time = pretty_date(product.update_time)
             return render_template('/products/product.html', product=product)
         else:
+            flash('查無此商品', 'warning')
             return redirect(url_for('home'))
