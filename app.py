@@ -1,10 +1,10 @@
 import os
+
 from flask import Flask, render_template
-from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_seeder import FlaskSeeder
-
+from dotenv import load_dotenv
 
 if os.environ.get('FLASK_ENV', '') != 'production':
     load_dotenv()
@@ -21,13 +21,14 @@ seeder.init_app(app, db)
 
 @app.route('/')
 def home():
-    products = Product.query.with_entities(Product.name, Product.price, Product.image_url).order_by(
-        Product.insert_time.desc()).all()
+    products = Product.query.with_entities(Product.id, Product.name, Product.price, Product.image_url).filter(
+        Product.inventory > 0).order_by(Product.insert_time.desc()).all()
     return render_template('home.html', products=products)
 
 
 if __name__ == '__main__':
     from views import product_blueprint
     from models import Product
+
     app.register_blueprint(product_blueprint, url_prefix='/products')
     app.run()
