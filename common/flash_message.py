@@ -15,3 +15,4 @@ class FlashMessage:
 
 
 product_not_found = FlashMessage('查無此商品', 'warning').to_tuple()
+seller_products_not_found = FlashMessage('查無此賣家商品，返回商城首頁', 'warning').to_tuple()

@@ -1,7 +1,7 @@
 from flask import Blueprint, redirect, url_for, request, render_template, flash
 from models import Product
 from common.utils import pretty_date
-from common.flash_message import product_not_found
+from common.flash_message import product_not_found, seller_products_not_found
 
 
 product_blueprint = Blueprint('products', __name__)
@@ -26,3 +26,18 @@ def get_product(product_id):
         else:
             flash(*product_not_found)
             return redirect(url_for('home'))
+
+
+@product_blueprint.route('/seller/<string:seller_id>')
+def get_seller_products(seller_id):
+    if not seller_id.isnumeric():
+        flash(*seller_products_not_found)
+        return redirect(url_for('home'))
+
+    products = Product.query.with_entities(Product.id, Product.name, Product.price, Product.image_url).filter(
+        Product.seller_id == seller_id, Product.inventory > 0).order_by(Product.insert_time.desc()).all()
+    if products:
+        return render_template('home.html', products=products)
+    else:
+        flash(*seller_products_not_found)
+        return redirect(url_for('home'))
