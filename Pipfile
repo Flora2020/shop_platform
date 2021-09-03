@@ -11,6 +11,7 @@ python-dotenv = "*"
 flask-migrate = "*"
 flask-seeder = "*"
 passlib = "*"
+flask-wtf = "*"
 
 [dev-packages]
 
