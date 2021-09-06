@@ -1,7 +1,10 @@
+from functools import partial
 from flask import Blueprint, redirect, url_for, request, render_template, flash
+
 from models import Product
 from common.utils import pretty_date
 from common.flash_message import product_not_found, seller_products_not_found
+from common.generate_many_flash_message import generate_many_flash_message
 from common.forms import NewProduct
 
 
@@ -44,9 +47,28 @@ def get_seller_products(seller_id):
         return redirect(url_for('home'))
 
 
+# TODO: login required
 @product_blueprint.route('/new', methods=['GET', 'POST'])
 def new_product():
     form = NewProduct()
     if form.validate_on_submit():
-        return 'success'
+        temp_seller_id = 1  # TODO: change to current user id
+        product = Product(name=form.name.data,
+                          price=form.price.data,
+                          image_url=form.image.data,
+                          inventory=form.inventory.data,
+                          description=form.description.data,
+                          seller_id=temp_seller_id,
+                          category_id=form.category.data)
+        product.save_to_db()
+        return redirect(url_for('products.get_seller_products', seller_id=temp_seller_id))
+    else:
+        flash_warning_messages = partial(generate_many_flash_message, category='warning')
+        flash_warning_messages(form.name.errors)
+        flash_warning_messages(form.price.errors)
+        flash_warning_messages(form.image.errors)
+        flash_warning_messages(form.inventory.errors)
+        flash_warning_messages(form.description.errors)
+        flash_warning_messages(form.category.errors)
+
     return render_template('products/new.html', form=form)
