@@ -69,6 +69,7 @@ def new_product():
         flash_warning_messages(form.image.errors)
         flash_warning_messages(form.inventory.errors)
         flash_warning_messages(form.description.errors)
-        flash_warning_messages(form.category.errors)
+        if form.category.errors:
+            flash_warning_messages(['查無此分類'])
 
     return render_template('products/new.html', form=form)
