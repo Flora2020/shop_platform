@@ -1,5 +1,8 @@
-from app import db
 from datetime import datetime
+from passlib.hash import pbkdf2_sha256
+
+from app import db
+from models.user.errors import EmailAlreadyUsedError, DisplayNameAlreadyUsedError
 
 
 class User(db.Model):
@@ -37,5 +40,31 @@ class User(db.Model):
         return cls.query.filter_by(email=email).first()
 
     @classmethod
+    def find_by_display_name(cls, display_name):
+        return cls.query.filter_by(display_name=display_name).first()
+
+    @classmethod
     def find_by_id(cls, _id):
         return cls.query.filter_by(id=_id).first()
+
+    @classmethod
+    def register(cls, display_name: str, email: str, password: str, cell_phone: str = None, address: str = None,
+                 store_introduction: str = None) -> bool:
+
+        if cls.find_by_email(email):
+            raise EmailAlreadyUsedError('此信箱已註冊，請更換信箱')
+
+        if cls.find_by_display_name(display_name):
+            raise DisplayNameAlreadyUsedError('此顯示名稱已有人使用，請更換顯示名稱')
+
+        hash_password = pbkdf2_sha256.hash(password)
+        cls(
+            display_name=display_name,
+            email=email,
+            password=hash_password,
+            cell_phone=cell_phone,
+            address=address,
+            store_introduction=store_introduction
+        ).save_to_db()
+
+        return True
