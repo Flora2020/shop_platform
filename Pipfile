@@ -12,6 +12,7 @@ flask-migrate = "*"
 flask-seeder = "*"
 passlib = "*"
 flask-wtf = "*"
+wtforms = {extras = ["email"], version = "*"}
 
 [dev-packages]
 
