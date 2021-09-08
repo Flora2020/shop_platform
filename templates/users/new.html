@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form class="row g-3 needs-validation" method="POST" action="{{ url_for('users.new_user') }}" novalidate>
+    {{ form.csrf_token }}
+    <div class="col-md-6">
+        {{ form.display_name.label(class="form-label") }}
+        {{ form.display_name(class="form-control", type="text", maxlength=50, autocomplete="on", required="required",
+        autofocus="autofocus") }}
+        <div class="invalid-feedback">
+            請輸入顯示名稱。名稱不可超過 16 個中文字。
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        {{ form.email.label(class="form-label") }}
+        {{ form.email(class="form-control", type="email", maxlength=50, autocomplete="on", required="required") }}
+        <div class="invalid-feedback">
+            請輸入電子信箱。電子信箱不可超過 50 個英文字。
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        {{ form.password.label(class="form-label") }}
+        {{ form.password(class="form-control", type="password", maxlength=50, autocomplete="on", required="required") }}
+        <div class="invalid-feedback">
+            請輸入密碼。密碼不可超過 50 個字。
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        {{ form.confirm_password.label(class="form-label") }}
+        {{ form.confirm_password(class="form-control", type="password", maxlength=50, autocomplete="on",
+        required="required") }}
+        <div class="invalid-feedback">
+            請再次輸入密碼。密碼不可超過 50 個字。
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        {{ form.cell_phone.label(class="form-label") }}
+        {{ form.cell_phone(class="form-control", type="text", maxlength=20, aria_describedby="cell-phone-help",
+        autocomplete="on") }}
+        <div id="cell-phone-help" class="form-text">
+            手機號碼格式須為 +國際碼.手機號碼（去掉最前方的 0）。<br/>
+            範例：台灣國碼為 886，手機號碼為 0987654321，則輸入 +886.987654321
+        </div>
+        <div class="invalid-feedback">
+
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        {{ form.address.label(class="form-label") }}
+        {{ form.address(class="form-control", type="text", maxlength=100, autocomplete="on") }}
+        <div class="invalid-feedback">
+            請輸入寄件地址。寄件地址不可超過 33 個中文字。
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        {{ form.store_introduction.label(class="form-label") }}
+        {{ form.store_introduction(class="form-control",rows="5", maxlength=2000) }}
+        <div class="invalid-feedback">
+            請輸入商家描述。描述不可超過 666 個中文字。
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <button class="btn btn-secondary" type="submit">註冊帳號</button>
+    </div>
+</form>
+
+<script src="{{ url_for('static', filename='javascript/bootstrap_form_validator.js') }}"></script>
+{% endblock %}
