@@ -9,3 +9,7 @@ class EmailAlreadyUsedError(UserError):
 
 class DisplayNameAlreadyUsedError(UserError):
     pass
+
+
+class InvalidLoginError(UserError):
+    pass

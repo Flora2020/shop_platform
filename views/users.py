@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, session
 from common.forms import NewUser, Login
 from models import User
 from models.user.errors import UserError
-from common.flash_message import register_success
+from common.flash_message import register_success, login_success
 from common.generate_many_flash_message import generate_many_flash_message
 
 
@@ -47,7 +47,22 @@ def new_user():
     return render_template('users/new.html', form=form)
 
 
-@user_blueprint.route('/login', methods=['GET'])
+@user_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
     form = Login()
+    flash_warning_messages = partial(generate_many_flash_message, category='warning')
+
+    if form.validate_on_submit():
+        try:
+            user = User.login(form.display_name.data, form.password.data)
+            session['user'] = user.json()
+            flash(*login_success)
+            return redirect(url_for('home'))
+
+        except UserError as e:
+            flash_warning_messages([e.message])
+    else:
+        flash_warning_messages(form.display_name.errors)
+        flash_warning_messages(form.password.errors)
+
     return render_template('users/login.html', form=form)

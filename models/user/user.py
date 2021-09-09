@@ -3,7 +3,7 @@ from typing import Dict
 from passlib.hash import pbkdf2_sha256
 
 from app import db
-from models.user.errors import EmailAlreadyUsedError, DisplayNameAlreadyUsedError
+from models.user.errors import EmailAlreadyUsedError, DisplayNameAlreadyUsedError, InvalidLoginError
 
 
 class User(db.Model):
@@ -80,3 +80,15 @@ class User(db.Model):
         ).save_to_db()
 
         return True
+
+    @classmethod
+    def login(cls, display_name: str, password: str) -> 'User':
+        user = cls.find_by_display_name(display_name)
+
+        if not user:
+            raise InvalidLoginError('顯示名稱或密碼錯誤')
+
+        if not pbkdf2_sha256.verify(password, user.password):
+            raise InvalidLoginError('顯示名稱或密碼錯誤')
+
+        return user
