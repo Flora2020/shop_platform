@@ -1,7 +1,7 @@
 from functools import partial
 from flask import Blueprint, render_template, redirect, url_for, flash, session
 
-from common.forms import NewUser
+from common.forms import NewUser, Login
 from models import User
 from models.user.errors import UserError
 from common.flash_message import register_success
@@ -45,3 +45,9 @@ def new_user():
         flash_warning_messages(form.store_introduction.errors)
 
     return render_template('users/new.html', form=form)
+
+
+@user_blueprint.route('/login', methods=['GET'])
+def login():
+    form = Login()
+    return render_template('users/login.html', form=form)

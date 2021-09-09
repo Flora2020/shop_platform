@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form class="row g-3 needs-validation" method="POST" action="{{ url_for('users.login') }}" novalidate>
+    {{ form.csrf_token }}
+    <div class="col-md-6">
+        {{ form.display_name.label(class="form-label") }}
+        {{ form.display_name(class="form-control", type="text", maxlength=50, autocomplete="on", required="required",
+        autofocus="autofocus") }}
+        <div class="invalid-feedback">
+            請輸入顯示名稱。名稱不可超過 16 個中文字。
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        {{ form.password.label(class="form-label") }}
+        {{ form.password(class="form-control", type="password", maxlength=50, autocomplete="on", required="required") }}
+        <div class="invalid-feedback">
+            請輸入密碼。密碼不可超過 50 個字。
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <button class="btn btn-secondary" type="submit">登入</button>
+    </div>
+</form>
+
+<script src="{{ url_for('static', filename='javascript/bootstrap_form_validator.js') }}"></script>
+{% endblock %}
