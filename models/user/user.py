@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Dict
 from passlib.hash import pbkdf2_sha256
 
 from app import db
@@ -34,6 +35,17 @@ class User(db.Model):
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
+
+    def json(self) -> Dict:
+        return {
+            'id': self.id,
+            'display_name': self.display_name,
+            'email': self.email,
+            'cell_phone': self.cell_phone,
+            'address': self.address,
+            'store_introduction': self.store_introduction,
+            'role': self.role
+        }
 
     @classmethod
     def find_by_email(cls, email):
