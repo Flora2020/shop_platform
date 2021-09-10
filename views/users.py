@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, session
 from common.forms import NewUser, Login
 from models import User
 from models.user.errors import UserError
-from common.flash_message import register_success, login_success
+from common.flash_message import register_success, login_success, logout_success
 from common.generate_many_flash_message import generate_many_flash_message
 
 
@@ -66,3 +66,10 @@ def login():
         flash_warning_messages(form.password.errors)
 
     return render_template('users/login.html', form=form)
+
+
+@user_blueprint.route('/logout')
+def logout():
+    session['user'] = None
+    flash(*logout_success)
+    return redirect((url_for('home')))

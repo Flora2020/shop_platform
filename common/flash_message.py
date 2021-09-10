@@ -19,3 +19,4 @@ seller_products_not_found = FlashMessage('查無此賣家商品，返回商城�
 register_success = FlashMessage('註冊成功', 'success').to_tuple()
 login_success = FlashMessage('登入成功', 'success').to_tuple()
 login_required_msg = FlashMessage('需要先登入才能使用此功能', 'warning').to_tuple()
+logout_success = FlashMessage('登出成功', 'success').to_tuple()
