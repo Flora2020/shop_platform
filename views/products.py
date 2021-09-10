@@ -73,4 +73,38 @@ def new_product():
         if form.category.errors:
             flash_warning_messages(['查無此分類'])
 
-    return render_template('products/new.html', form=form)
+    is_new_product = True
+    return render_template('products/new.html', form=form, is_new_product=is_new_product)
+
+
+@product_blueprint.route('/edit/<string:product_id>', methods=['GET', 'POST'])
+@require_login
+def edit_product(product_id):
+    if not product_id.isnumeric():
+        flash(*product_not_found)
+        return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
+
+    if request.method == 'GET':
+        product = Product.find_by_id(product_id)
+        if not product:
+            flash(*product_not_found)
+            return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
+
+        if product.seller_id != session['user']['id']:
+            flash(*product_not_found)
+            return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
+
+        form = NewProduct()
+        form.id = product.id
+        form.name.data = product.name
+        form.price.data = product.price
+        form.image.data = product.image_url
+        form.inventory.data = product.inventory
+        form.description.data = product.description
+        form.category.data = product.category
+
+        is_new_product = False
+        return render_template('products/new.html', form=form, is_new_product=is_new_product)
+
+    if request.method == 'POST':
+        return 'hello'

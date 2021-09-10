@@ -1,7 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<form class="row g-3 needs-validation" method="POST" action="/products/new" novalidate>
+<form class="row g-3 needs-validation" method="POST"
+      action="{% if is_new_product %}
+                {{ url_for('products.new_product') }}
+              {% else %}
+                {{ url_for('products.edit_product', product_id=form.id) }}
+              {% endif %}"
+      novalidate>
     {{ form.csrf_token }}
     <div class="col-md-6">
         {{ form.name.label(class="form-label") }}
@@ -49,7 +55,13 @@
         {{ form.category(class="form-control") }}
     </div>
     <div class="col-md-12">
-        <button class="btn btn-secondary" type="submit">上架商品</button>
+        <button class="btn btn-secondary" type="submit">
+            {% if is_new_product %}
+            上架商品
+            {% else %}
+            更新商品
+            {% endif %}
+        </button>
     </div>
 </form>
 
