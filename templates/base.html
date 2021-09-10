@@ -17,9 +17,34 @@
     <link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}">
 </head>
 <body class="bg-light">
-<nav class="navbar navbar-dark bg-secondary bg-gradient">
+<nav class="navbar navbar-expand-sm navbar-dark bg-secondary bg-gradient">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/">牙牙商城</a>
+        <a class="navbar-brand" href="{{ url_for('home') }}">牙牙商城</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse d-sm-flex justify-content-sm-end" id="navbarSupportedContent">
+            <ul class="navbar-nav mb-2 mb-lg-0">
+                {% if session['user'] %}
+                <li class="nav-item">
+                    <a class="nav-link btn btn-btn-link mt-2" aria-current="page"
+                       href="{{ url_for('users.logout') }}">登出</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link btn btn-link mt-2" aria-current="page"
+                       href="{{ url_for('users.login') }}">登入</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link btn btn-btn-link mt-2" aria-current="page"
+                       href="{{ url_for('users.new_user') }}">註冊</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
     </div>
 </nav>
 <div class="container mt-3">
