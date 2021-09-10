@@ -1,7 +1,8 @@
 from functools import partial
-from flask import Blueprint, redirect, url_for, request, render_template, flash
+from flask import Blueprint, redirect, url_for, request, render_template, flash, session
 
 from models import Product
+from models.user.decorators import require_login
 from common.utils import pretty_date
 from common.flash_message import product_not_found, seller_products_not_found
 from common.generate_many_flash_message import generate_many_flash_message
@@ -47,21 +48,21 @@ def get_seller_products(seller_id):
         return redirect(url_for('home'))
 
 
-# TODO: login required
 @product_blueprint.route('/new', methods=['GET', 'POST'])
+@require_login
 def new_product():
     form = NewProduct()
     if form.validate_on_submit():
-        temp_seller_id = 1  # TODO: change to current user id
+        seller_id = session['user']['id']
         product = Product(name=form.name.data,
                           price=form.price.data,
                           image_url=form.image.data,
                           inventory=form.inventory.data,
                           description=form.description.data,
-                          seller_id=temp_seller_id,
+                          seller_id=seller_id,
                           category_id=form.category.data)
         product.save_to_db()
-        return redirect(url_for('products.get_seller_products', seller_id=temp_seller_id))
+        return redirect(url_for('products.get_seller_products', seller_id=seller_id))
     else:
         flash_warning_messages = partial(generate_many_flash_message, category='warning')
         flash_warning_messages(form.name.errors)
