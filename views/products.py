@@ -1,10 +1,10 @@
 from functools import partial
 from flask import Blueprint, redirect, url_for, request, render_template, flash, session
 
-from models import Product
+from models import Product, Category
 from models.user.decorators import require_login
 from common.utils import pretty_date
-from common.flash_message import product_not_found, seller_products_not_found
+from common.flash_message import product_not_found, seller_products_not_found, product_update_success
 from common.generate_many_flash_message import generate_many_flash_message
 from common.forms import NewProduct
 
@@ -84,8 +84,10 @@ def edit_product(product_id):
         flash(*product_not_found)
         return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
 
+    product = Product.find_by_id(product_id)
+    form = NewProduct()
+
     if request.method == 'GET':
-        product = Product.find_by_id(product_id)
         if not product:
             flash(*product_not_found)
             return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
@@ -94,7 +96,6 @@ def edit_product(product_id):
             flash(*product_not_found)
             return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
 
-        form = NewProduct()
         form.id = product.id
         form.name.data = product.name
         form.price.data = product.price
@@ -103,8 +104,28 @@ def edit_product(product_id):
         form.description.data = product.description
         form.category.data = product.category
 
-        is_new_product = False
-        return render_template('products/new.html', form=form, is_new_product=is_new_product)
-
     if request.method == 'POST':
-        return 'hello'
+        if form.validate_on_submit():
+            product.name = form.name.data
+            product.price = form.price.data
+            product.image_url = form.image.data
+            product.inventory = form.inventory.data
+            product.description = form.description.data
+            product.category = Category.find_by_id(form.category.data)
+
+            product.save_to_db()
+            flash(*product_update_success)
+            return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
+
+        else:
+            flash_warning_messages = partial(generate_many_flash_message, category='warning')
+            flash_warning_messages(form.name.errors)
+            flash_warning_messages(form.price.errors)
+            flash_warning_messages(form.image.errors)
+            flash_warning_messages(form.inventory.errors)
+            flash_warning_messages(form.description.errors)
+            if form.category.errors:
+                flash_warning_messages(['查無此分類'])
+
+    is_new_product = False
+    return render_template('products/new.html', form=form, is_new_product=is_new_product)
