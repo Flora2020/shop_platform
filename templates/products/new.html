@@ -5,7 +5,7 @@
       action="{% if is_new_product %}
                 {{ url_for('products.new_product') }}
               {% else %}
-                {{ url_for('products.edit_product', product_id=form.id) }}
+                {{ url_for('products.edit_product', product_id=product_id) }}
               {% endif %}"
       novalidate>
     {{ form.csrf_token }}

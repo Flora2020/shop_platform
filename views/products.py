@@ -8,7 +8,6 @@ from common.flash_message import product_not_found, seller_products_not_found, p
 from common.generate_many_flash_message import generate_many_flash_message
 from common.forms import NewProduct
 
-
 product_blueprint = Blueprint('products', __name__)
 
 
@@ -100,7 +99,6 @@ def edit_product(product_id):
             flash(*product_not_found)
             return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
 
-        form.id = product.id
         form.name.data = product.name
         form.price.data = product.price
         form.image.data = product.image_url
@@ -132,4 +130,4 @@ def edit_product(product_id):
                 flash_warning_messages(['查無此分類'])
 
     is_new_product = False
-    return render_template('products/new.html', form=form, is_new_product=is_new_product)
+    return render_template('products/new.html', form=form, is_new_product=is_new_product, product_id=product.id)
