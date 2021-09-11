@@ -52,7 +52,15 @@
     </div>
     <div class="col-md-4">
         {{ form.category.label(class="form-label") }}
-        {{ form.category(class="form-control") }}
+        <select class="form-control" id="category" name="category">
+            {% for (category_id, category_name) in form.category.choices %}
+                {% if form.category.data == category_id %}
+                <option value="{{ category_id }}" selected>{{ category_name }}</option>
+                {% else %}
+                <option value="{{ category_id }}">{{ category_name }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
     </div>
     <div class="col-md-12">
         <button class="btn btn-secondary" type="submit">

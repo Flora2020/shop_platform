@@ -106,7 +106,7 @@ def edit_product(product_id):
         form.image.data = product.image_url
         form.inventory.data = product.inventory
         form.description.data = product.description
-        form.category.data = product.category
+        form.category.data = product.category.id
 
     if request.method == 'POST':
         if form.validate_on_submit():

@@ -49,5 +49,6 @@ class NewProduct(FlaskForm):
 
     category = SelectField(
         u'分類',
+        coerce=int,
         validate_choice=True
     )
