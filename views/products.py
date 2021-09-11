@@ -52,6 +52,8 @@ def get_seller_products(seller_id):
 @require_login
 def new_product():
     form = NewProduct()
+    categories = Category.query.with_entities(Category.id, Category.name).all()
+    form.category.choices = [(category.id, category.name) for category in categories]
     if form.validate_on_submit():
         seller_id = session['user']['id']
         product = Product(name=form.name.data,
@@ -86,6 +88,8 @@ def edit_product(product_id):
 
     product = Product.find_by_id(product_id)
     form = NewProduct()
+    categories = Category.query.with_entities(Category.id, Category.name).all()
+    form.category.choices = [(category.id, category.name) for category in categories]
 
     if request.method == 'GET':
         if not product:

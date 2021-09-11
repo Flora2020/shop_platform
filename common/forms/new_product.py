@@ -2,11 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, TextAreaField, SelectField
 from wtforms.validators import InputRequired, Optional, NumberRange, URL
 
-from models import Category
 from common.forms.custom_validators import byte_length
-
-
-categories = Category.query.with_entities(Category.id, Category.name).all()
 
 
 class NewProduct(FlaskForm):
@@ -53,6 +49,5 @@ class NewProduct(FlaskForm):
 
     category = SelectField(
         u'分類',
-        choices=[(category.id, category.name) for category in categories],
         validate_choice=True
     )
