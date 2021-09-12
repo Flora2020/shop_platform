@@ -7,7 +7,9 @@
             <img src="{{product.image_url}}" class="img-fluid rounded-start" alt="product image">
             <div class="d-flex justify-content-evenly w-100 mt-2">
                 <p class="card-text d-flex align-items-center mb-0">$ {{ product.price }}</p>
-                <i class="fa fa-cart-plus fa-2x"></i>
+                <form method="post" action="{{ url_for('carts.new_cart', product_id=product.id)}}">
+                    <button class="btn" type="submit"><i class="fa fa-cart-plus fa-2x"></i></button>
+                </form>
             </div>
         </div>
         <div class="col-md-7">

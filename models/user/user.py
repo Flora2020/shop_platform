@@ -44,7 +44,8 @@ class User(db.Model):
             'cell_phone': self.cell_phone,
             'address': self.address,
             'store_introduction': self.store_introduction,
-            'role': self.role
+            'role': self.role,
+            'cart_id': self.cart.id
         }
 
     @classmethod
