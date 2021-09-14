@@ -1,0 +1,6 @@
+{% macro price_and_cart_btn(product) %}
+    <p class="card-text d-flex align-items-center mb-0">$ {{ product.price }}</p>
+    <form method="post" action="{{ url_for('carts.new_cart', product_id=product.id)}}">
+        <button class="btn" type="submit"><i class="fa fa-cart-plus fa-2x"></i></button>
+    </form>
+{% endmacro %}
