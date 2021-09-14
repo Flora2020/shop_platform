@@ -1,8 +1,12 @@
 from datetime import datetime
 from typing import Dict
 from passlib.hash import pbkdf2_sha256
+from flask import session
 
 from app import db
+from models.cart import Cart
+from models.cart_item import CartItem
+from models.product import Product
 from models.user.errors import EmailAlreadyUsedError, DisplayNameAlreadyUsedError, InvalidLoginError
 
 
@@ -47,6 +51,30 @@ class User(db.Model):
             'role': self.role,
             'cart_id': self.cart.id
         }
+
+    def find_or_create_cart(self) -> 'Cart':
+        if not self.cart:
+            cart = Cart(user_id=self.id)
+            cart.save_to_db()
+
+        if not session.get('cartitems'):
+            return self.cart
+
+        cart_id = self.cart.id
+        for item in session.get('cartitems'):
+            if not Product.find_by_id(item['product_id']):
+                continue
+
+            CartItem(
+                cart_id=cart_id,
+                product_id=item['product_id'],
+                quantity=item['quantity'],
+                insert_time=item['insert_time'],
+                update_time=item['update_time']
+            ).save_to_db()
+
+        session['cartitems'] = None
+        return self.cart
 
     @classmethod
     def find_by_email(cls, email):

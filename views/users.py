@@ -28,6 +28,7 @@ def new_user():
             )
 
             user = User.find_by_email(form.email.data)
+            user.find_or_create_cart()
             session['user'] = user.json()
             flash(*register_success)
             return redirect(url_for('home'))
@@ -55,6 +56,7 @@ def login():
     if form.validate_on_submit():
         try:
             user = User.login(form.display_name.data, form.password.data)
+            user.find_or_create_cart()
             session['user'] = user.json()
             flash(*login_success)
             return redirect(url_for('home'))
