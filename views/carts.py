@@ -1,19 +1,42 @@
 from datetime import datetime
-from flask import Blueprint, session, redirect, flash
+from flask import Blueprint, session, redirect, flash, render_template, url_for
 
 from models import Product, Cart, CartItem
 from common.previous_page import previous_page
 from common.utils import find_one_dictionary_in_list
-from common.flash_message import product_not_found
+from common.flash_message import product_not_found, cart_is_empty
 
 cart_blueprint = Blueprint('carts', __name__)
 
 # dictionary keys
+USER = 'user'
+CART_ID = 'cart_id'
 CART_ITEMS = 'cartitems'
+PRODUCT = 'product'
 PRODUCT_ID = 'product_id'
 QUANTITY = 'quantity'
 INSERT_TIME = 'insert_time'
 UPDATE_TIME = 'update_time'
+
+
+@cart_blueprint.route('/')
+def get_cart_items():
+    # TODO: Query optimization
+    cart_items = None
+
+    if session.get(USER) and session.get(USER).get(CART_ID):
+        cart_items = CartItem.find_by_cart_id(session[USER][CART_ID])
+
+    elif session.get(CART_ITEMS):
+        for item in session[CART_ITEMS]:
+            item[PRODUCT] = Product.find_by_id(item[PRODUCT_ID])
+        cart_items = session[CART_ITEMS]
+
+    if not cart_items:
+        flash(*cart_is_empty)
+        return redirect(url_for('home'))
+
+    return render_template('carts/cart_items.html', cart_items=cart_items)
 
 
 @cart_blueprint.route('/<string:product_id>', methods=['POST'])

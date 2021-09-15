@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    {% for item in cart_items %}
+    <div class="row mt-2">
+        <div class="col-sm-12 col-lg-2 d-flex justify-content-center">
+            <img src="{{ item.product.image_url }}" class="img-fluid rounded-start" alt="product image">
+        </div>
+        <div class="col-sm-6 col-lg-2">
+            <h5>{{ item.product.name }}</h5>
+        </div>
+        <div class="col-sm-6 col-lg-2">
+            數量：{{ item.quantity }}
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            單價：$ {{ item.product.price }}
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            總價：$ {{ item.quantity * item.product.price }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
