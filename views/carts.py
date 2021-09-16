@@ -5,18 +5,9 @@ from models import Product, Cart, CartItem
 from common.previous_page import previous_page
 from common.utils import find_one_dictionary_in_list
 from common.flash_message import product_not_found, cart_is_empty
+from common.constant import USER, CART_ID, CART_ITEMS, PRODUCT, PRODUCT_ID, QUANTITY, INSERT_TIME, UPDATE_TIME
 
 cart_blueprint = Blueprint('carts', __name__)
-
-# dictionary keys
-USER = 'user'
-CART_ID = 'cart_id'
-CART_ITEMS = 'cartitems'
-PRODUCT = 'product'
-PRODUCT_ID = 'product_id'
-QUANTITY = 'quantity'
-INSERT_TIME = 'insert_time'
-UPDATE_TIME = 'update_time'
 
 
 @cart_blueprint.route('/')
@@ -45,7 +36,7 @@ def new_cart(product_id):
         flash(*product_not_found)
         return redirect(previous_page())
 
-    cart_id = session.get('user') and session['user'].get('cart_id')
+    cart_id = session.get(USER) and session[USER].get(CART_ID)
     if cart_id is None:
         # save cart items to session
         # cart item format: {'product_id': int, 'quantity': int, 'insert_time': datetime , 'update_time': datetime}

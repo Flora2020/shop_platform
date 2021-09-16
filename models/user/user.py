@@ -8,6 +8,7 @@ from models.cart import Cart
 from models.cart_item import CartItem
 from models.product import Product
 from models.user.errors import EmailAlreadyUsedError, DisplayNameAlreadyUsedError, InvalidLoginError
+from common.constant import CART_ITEMS, PRODUCT_ID, QUANTITY, INSERT_TIME, UPDATE_TIME
 
 
 class User(db.Model):
@@ -57,23 +58,23 @@ class User(db.Model):
             cart = Cart(user_id=self.id)
             cart.save_to_db()
 
-        if not session.get('cartitems'):
+        if not session.get(CART_ITEMS):
             return self.cart
 
         cart_id = self.cart.id
-        for item in session.get('cartitems'):
-            if not Product.find_by_id(item['product_id']):
+        for item in session.get(CART_ITEMS):
+            if not Product.find_by_id(item[PRODUCT_ID]):
                 continue
 
             CartItem(
                 cart_id=cart_id,
-                product_id=item['product_id'],
-                quantity=item['quantity'],
-                insert_time=item['insert_time'],
-                update_time=item['update_time']
+                product_id=item[PRODUCT_ID],
+                quantity=item[QUANTITY],
+                insert_time=item[INSERT_TIME],
+                update_time=item[UPDATE_TIME]
             ).save_to_db()
 
-        session['cartitems'] = None
+        session[CART_ITEMS] = None
         return self.cart
 
     @classmethod
