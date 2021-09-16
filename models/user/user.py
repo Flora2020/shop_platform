@@ -63,6 +63,15 @@ class User(db.Model):
 
         cart_id = self.cart.id
         for item in session.get(CART_ITEMS):
+            cart_item = CartItem.find_by_composite_primary_key(
+                cart_id=cart_id,
+                product_id=item[PRODUCT_ID]
+            )
+            if cart_item:
+                cart_item.quantity += 1
+                cart_item.save_to_db()
+                continue
+
             if not Product.find_by_id(item[PRODUCT_ID]):
                 continue
 

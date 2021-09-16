@@ -27,3 +27,7 @@ class CartItem(db.Model):
     @classmethod
     def find_by_product_id(cls, product_id):
         return cls.query.filter_by(product_id=product_id).all()
+
+    @classmethod
+    def find_by_composite_primary_key(cls, cart_id, product_id):
+        return cls.query.filter_by(cart_id=cart_id, product_id=product_id).first()
