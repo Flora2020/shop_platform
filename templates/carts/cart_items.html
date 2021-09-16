@@ -5,22 +5,22 @@
 <div class="card mb-3">
     <div class="row g-0">
         <div class="col-sm-2 col-lg-1 d-flex justify-content-center align-items-center">
-            <img src="{{ item.product.image_url }}" class="img-fluid rounded-start" alt="product image">
+            <img src="{{ item.image_url }}" class="img-fluid rounded-start" alt="product image">
         </div>
         <div class="col-sm-10 col-lg-11">
             <div class="card-body container">
                 <div class="row mt-2">
                     <div class="col-sm-12 col-lg-3">
-                        <h5 class="card-title">{{ item.product.name }}</h5>
+                        <h5 class="card-title">{{ item.name }}</h5>
                     </div>
                     <div class="col-sm-4 col-lg-3">
-                        單價：$ {{ item.product.price }}
+                        單價：$ {{ item.price }}
                     </div>
                     <div class="col-sm-4 col-lg-3">
                         數量：{{ item.quantity }}
                     </div>
                     <div class="col-sm-4 col-lg-3">
-                        總價：$ {{ item.quantity * item.product.price }}
+                        總價：$ {{ item.quantity * item.price }}
                     </div>
                 </div>
             </div>
