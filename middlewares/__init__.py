@@ -1,1 +1,0 @@
-from middlewares.method_rewrite_middleware import MethodRewriteMiddleware

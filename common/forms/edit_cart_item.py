@@ -1,11 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import HiddenField, IntegerField
+from wtforms import IntegerField
 from wtforms.validators import InputRequired, NumberRange
 
 
 class EditCartItem(FlaskForm):
-    method = HiddenField()
-
     quantity = IntegerField(
         u'數量',
         validators=[

@@ -79,6 +79,6 @@ def new_cart(product_id):
     return redirect(previous_page())
 
 
-@cart_blueprint.route('/edit/<string:product_id>', methods=['POST', 'PUT'])
+@cart_blueprint.route('/edit/<string:product_id>', methods=['POST'])
 def edit_cart_item(product_id):
     return 'data received'
