@@ -6,6 +6,8 @@ from flask_migrate import Migrate
 from flask_seeder import FlaskSeeder
 from dotenv import load_dotenv
 
+from middlewares import MethodRewriteMiddleware
+
 if os.environ.get('FLASK_ENV', '') != 'production':
     load_dotenv()
 
@@ -18,6 +20,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 seeder = FlaskSeeder()
 seeder.init_app(app, db)
+app.wsgi_app = MethodRewriteMiddleware(app.wsgi_app)
 
 
 @app.route('/')

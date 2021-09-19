@@ -13,6 +13,7 @@ flask-seeder = "*"
 passlib = "*"
 flask-wtf = "*"
 wtforms = {extras = ["email"], version = "*"}
+werkzeug = "*"
 
 [dev-packages]
 
