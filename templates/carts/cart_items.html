@@ -13,11 +13,25 @@
                     <div class="col-sm-12 col-lg-3">
                         <h5 class="card-title">{{ item.name }}</h5>
                     </div>
-                    <div class="col-sm-4 col-lg-3">
+                    <div class="col-sm-3 col-lg-3">
                         單價：$ {{ item.price }}
                     </div>
-                    <div class="col-sm-4 col-lg-3">
-                        數量：{{ item.quantity }}
+                    <div class="col-sm-5 col-lg-3">
+                        <form class="needs-validation"
+                              method="POST"
+                              action="{{ url_for('carts.edit_cart_item', product_id=item.product_id )}}"
+                              novalidate
+                        >
+                            {{ form.csrf_token }}
+                            {{ form._method(value="PUT") }}
+                            <div class="input-group">
+                                <span class="input-group-text">數量：</span>
+                                {{ form.quantity(class="form-control", type="number", min=1, max=2147483647, step=1,
+                                autocomplete="on",
+                                value=item.quantity, required="required", autofocus="autofocus") }}
+                            </div>
+                            <button class="btn btn-secondary" type="submit">更新</button>
+                        </form>
                     </div>
                     <div class="col-sm-4 col-lg-3">
                         總價：$ {{ item.quantity * item.price }}
@@ -28,4 +42,5 @@
     </div>
 </div>
 {% endfor %}
+<script src="{{ url_for('static', filename='javascript/bootstrap_form_validator.js') }}"></script>
 {% endblock %}

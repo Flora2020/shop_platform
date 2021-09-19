@@ -1,11 +1,12 @@
 from datetime import datetime
-from flask import Blueprint, session, redirect, flash, render_template, url_for
+from flask import Blueprint, session, redirect, flash, render_template, url_for, request
 
 from models import Product, Cart, CartItem
 from common.previous_page import previous_page
 from common.utils import find_one_dictionary_in_list
 from common.flash_message import product_not_found, cart_is_empty
 from common.constant import USER, CART_ID, CART_ITEMS, PRODUCT_ID, QUANTITY, INSERT_TIME, UPDATE_TIME
+from common.forms import EditCartItem
 
 cart_blueprint = Blueprint('carts', __name__)
 
@@ -13,10 +14,11 @@ cart_blueprint = Blueprint('carts', __name__)
 @cart_blueprint.route('/')
 def get_cart_items():
     cart_items = None
+    form = EditCartItem()
 
     if session.get(USER) and session.get(USER).get(CART_ID):
         cart_items = CartItem.query\
-            .with_entities(CartItem.quantity, Product.name, Product.price, Product.image_url)\
+            .with_entities(CartItem.product_id, CartItem.quantity,  Product.name, Product.price, Product.image_url)\
             .join(Product)\
             .filter(CartItem.cart_id == session.get(USER).get(CART_ID))\
             .filter(CartItem.product_id == Product.id).all()
@@ -36,7 +38,7 @@ def get_cart_items():
         flash(*cart_is_empty)
         return redirect(url_for('home'))
 
-    return render_template('carts/cart_items.html', cart_items=cart_items)
+    return render_template('carts/cart_items.html', cart_items=cart_items, form=form)
 
 
 @cart_blueprint.route('/<string:product_id>', methods=['POST'])
@@ -75,3 +77,8 @@ def new_cart(product_id):
             cart_item.save_to_db()
 
     return redirect(previous_page())
+
+
+@cart_blueprint.route('/edit/<string:product_id>', methods=['POST', 'PUT'])
+def edit_cart_item(product_id):
+    return 'data received'
