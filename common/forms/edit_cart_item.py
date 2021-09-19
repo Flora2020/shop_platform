@@ -4,7 +4,7 @@ from wtforms.validators import InputRequired, NumberRange
 
 
 class EditCartItem(FlaskForm):
-    _method = HiddenField()
+    method = HiddenField()
 
     quantity = IntegerField(
         u'數量',

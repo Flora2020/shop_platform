@@ -2,7 +2,7 @@ from werkzeug.wrappers import Request
 
 
 class MethodRewriteMiddleware(object):
-    def __init__(self, app, input_name='_method'):
+    def __init__(self, app, input_name='method'):
         self.app = app
         self.input_name = input_name
 
