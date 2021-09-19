@@ -1,9 +1,11 @@
 from datetime import datetime
-from flask import Blueprint, session, redirect, flash, render_template, url_for, request
+from functools import partial
+from flask import Blueprint, session, redirect, flash, render_template, url_for
 
 from models import Product, Cart, CartItem
 from common.previous_page import previous_page
 from common.utils import find_one_dictionary_in_list
+from common.generate_many_flash_message import generate_many_flash_message
 from common.flash_message import product_not_found, cart_is_empty
 from common.constant import USER, CART_ID, CART_ITEMS, PRODUCT_ID, QUANTITY, INSERT_TIME, UPDATE_TIME
 from common.forms import EditCartItem
@@ -81,4 +83,30 @@ def new_cart(product_id):
 
 @cart_blueprint.route('/edit/<string:product_id>', methods=['POST'])
 def edit_cart_item(product_id):
-    return 'data received'
+    if not product_id.isnumeric() or not Product.find_by_id(product_id):
+        flash(*product_not_found)
+        redirect(previous_page())
+
+    form = EditCartItem()
+    if form.validate_on_submit():
+        cart_id = session.get(USER) and session[USER].get(CART_ID)
+
+        if cart_id:
+            cart_item = CartItem.find_by_composite_primary_key(cart_id=cart_id, product_id=product_id)
+            if not cart_item:
+                flash(*product_not_found)
+                redirect(previous_page())
+
+            cart_item.quantity = form.quantity.data
+            cart_item.save_to_db()
+
+        else:
+            cart_item = find_one_dictionary_in_list(session[CART_ITEMS], PRODUCT_ID, product_id)
+            cart_item[QUANTITY] = form.quantity.data
+            session.modified = True
+
+    else:
+        flash_warning_messages = partial(generate_many_flash_message, category='warning')
+        flash_warning_messages(form.quantity.errors)
+
+    return redirect(url_for('carts.get_cart_items'))
