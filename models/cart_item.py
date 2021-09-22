@@ -20,6 +20,10 @@ class CartItem(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
     @classmethod
     def find_by_cart_id(cls, cart_id):
         return cls.query.filter_by(cart_id=cart_id).all()

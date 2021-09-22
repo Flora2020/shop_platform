@@ -54,8 +54,9 @@ def new_cart(product_id):
         # save cart items to session
         # cart item format: {'product_id': int, 'quantity': int, 'insert_time': datetime , 'update_time': datetime}
         cart_items = session.get(CART_ITEMS, [])
-        item = find_one_dictionary_in_list(cart_items, PRODUCT_ID, product_id)
-        if item is None:
+        result = find_one_dictionary_in_list(cart_items, PRODUCT_ID, product_id)
+
+        if result is None:
             cart_items.append({
                 PRODUCT_ID: product_id,
                 QUANTITY: 1,
@@ -63,6 +64,7 @@ def new_cart(product_id):
                 UPDATE_TIME: datetime.now()
             })
         else:
+            _, item = result
             item[QUANTITY] = item.get(QUANTITY, 0) + 1
             item[UPDATE_TIME] = datetime.now()
 
@@ -85,7 +87,7 @@ def new_cart(product_id):
 def edit_cart_item(product_id):
     if not product_id.isnumeric() or not Product.find_by_id(product_id):
         flash(*product_not_found)
-        redirect(previous_page())
+        return redirect(previous_page())
 
     form = EditCartItem()
     if form.validate_on_submit():
@@ -95,13 +97,18 @@ def edit_cart_item(product_id):
             cart_item = CartItem.find_by_composite_primary_key(cart_id=cart_id, product_id=product_id)
             if not cart_item:
                 flash(*product_not_found)
-                redirect(previous_page())
+                return redirect(previous_page())
 
             cart_item.quantity = form.quantity.data
             cart_item.save_to_db()
 
         else:
-            cart_item = find_one_dictionary_in_list(session[CART_ITEMS], PRODUCT_ID, product_id)
+            result = find_one_dictionary_in_list(session[CART_ITEMS], PRODUCT_ID, product_id)
+            if result is None:
+                flash(*product_not_found)
+                return redirect(previous_page())
+
+            _, cart_item = result
             cart_item[QUANTITY] = form.quantity.data
             session.modified = True
 
@@ -110,3 +117,40 @@ def edit_cart_item(product_id):
         flash_warning_messages(form.quantity.errors)
 
     return redirect(url_for('carts.get_cart_items'))
+
+
+@cart_blueprint.route('/delete/<string:product_id>', methods=['POST'])
+def delete_cart_item(product_id):
+    if not product_id.isnumeric or not Product.find_by_id(product_id):
+        flash(*product_not_found)
+        return redirect(url_for('carts.get_cart_items'))
+
+    if session.get(USER) and session.get(USER).get(CART_ID):
+        cart_item = CartItem.find_by_composite_primary_key(
+            cart_id=session[USER][CART_ID],
+            product_id=product_id
+        )
+
+        if not cart_item:
+            flash(*product_not_found)
+            return redirect(url_for('carts.get_cart_items'))
+
+        cart_item.delete()
+
+    elif session.get(CART_ITEMS):
+        item = find_one_dictionary_in_list(session[CART_ITEMS], PRODUCT_ID, product_id)
+
+        if item is None:
+            flash(*product_not_found)
+            return redirect(url_for('carts.get_cart_items'))
+
+        del session[CART_ITEMS][item[0]]
+        session.modified = True
+
+    else:
+        flash(*product_not_found)
+
+    return redirect(url_for('carts.get_cart_items'))
+
+
+
