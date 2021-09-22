@@ -38,10 +38,17 @@ def get_seller_products(seller_id):
         flash(*seller_products_not_found)
         return redirect(url_for('home'))
 
-    products = Product.query.with_entities(Product.id, Product.name, Product.price, Product.image_url).filter(
-        Product.seller_id == seller_id, Product.inventory > 0).order_by(Product.insert_time.desc()).all()
+    products = Product.query\
+        .with_entities(Product.id, Product.name, Product.price, Product.image_url, Product.seller_id)\
+        .filter(Product.seller_id == seller_id, Product.inventory > 0)\
+        .order_by(Product.insert_time.desc()).all()
+
     if products:
-        return render_template('home.html', products=products)
+        user_id = None
+        if session.get('user') and session['user'].get('id'):
+            user_id = session['user']['id']
+
+        return render_template('home.html', products=products, user_id=user_id)
     else:
         flash(*seller_products_not_found)
         return redirect(url_for('home'))
@@ -131,3 +138,22 @@ def edit_product(product_id):
 
     is_new_product = False
     return render_template('products/new.html', form=form, is_new_product=is_new_product, product_id=product.id)
+
+
+@product_blueprint.route('/delete/<string:product_id>', methods=['POST'])
+@require_login
+def delete_product(product_id):
+    if not product_id.isnumeric():
+        flash(*product_not_found)
+        return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
+
+    product = Product.find_by_id(product_id)
+
+    if product.seller_id != session['user']['id']:
+        flash(*product_not_found)
+        return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
+
+    product.delete()
+    return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
+
+

@@ -1,6 +1,20 @@
-{% macro price_and_cart_btn(product) %}
+{% macro price_and_cart_btn(product, user_id) %}
     <p class="card-text d-flex align-items-center mb-0">$ {{ product.price }}</p>
+
+    {% if product.seller_id == user_id %}
+    <form
+            class="d-flex justify-content-center"
+            action="{{ url_for('products.delete_product', product_id=product.id)}}" method="POST"
+            onsubmit="return confirm('確認刪除此商品？')"
+    >
+        <button class="btn btn-link p-0" type="submit">
+            <i class="fa fa-trash fa-2x text-danger"></i>
+        </button>
+    </form>
+
+    {% else %}
     <form method="post" action="{{ url_for('carts.new_cart', product_id=product.id)}}">
         <button class="btn" type="submit"><i class="fa fa-cart-plus fa-2x"></i></button>
     </form>
+    {% endif %}
 {% endmacro %}

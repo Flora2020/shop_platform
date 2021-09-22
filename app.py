@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template
+from flask import Flask, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_seeder import FlaskSeeder
@@ -23,9 +23,15 @@ seeder.init_app(app, db)
 
 @app.route('/')
 def home():
-    products = Product.query.with_entities(Product.id, Product.name, Product.price, Product.image_url).filter(
-        Product.inventory > 0).order_by(Product.insert_time.desc()).all()
-    return render_template('home.html', products=products)
+    products = Product.query\
+        .with_entities(Product.id, Product.name, Product.price, Product.image_url, Product.seller_id)\
+        .filter(Product.inventory > 0).order_by(Product.insert_time.desc()).all()
+
+    user_id = None
+    if session.get('user') and session['user'].get('id'):
+        user_id = session['user']['id']
+
+    return render_template('home.html', products=products, user_id=user_id)
 
 
 if __name__ == '__main__':
