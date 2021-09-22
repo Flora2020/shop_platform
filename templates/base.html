@@ -27,7 +27,14 @@
         </button>
 
         <div class="collapse navbar-collapse d-sm-flex justify-content-sm-end" id="navbarSupportedContent">
-            <ul class="navbar-nav mb-2 mb-lg-0">
+            <ul class="navbar-nav mb-2 mb-lg-0 d-flex align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link btn btn-btn-link mt-2" aria-current="page"
+                       href="{{ url_for('carts.get_cart_items') }}">
+                        <i class="fa fa-shopping-cart fa-2x"></i>
+                    </a>
+                </li>
+
                 {% if session['user'] %}
                 <li class="nav-item">
                     <a class="nav-link btn btn-btn-link mt-2" aria-current="page"
