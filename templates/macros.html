@@ -2,16 +2,26 @@
     <p class="card-text d-flex align-items-center mb-0">$ {{ product.price }}</p>
 
     {% if product.seller_id == user_id %}
-    <form
-            class="d-flex justify-content-center"
-            action="{{ url_for('products.delete_product', product_id=product.id)}}" method="POST"
-            onsubmit="return confirm('確認刪除此商品？')"
-    >
-        <button class="btn btn-link p-0" type="submit">
-            <i class="fa fa-trash fa-2x text-danger"></i>
-        </button>
-    </form>
+    <div class="d-flex">
+        <a
+                class="ms-2"
+                href="{{ url_for('products.edit_product', product_id=product.id)}}"
+        >
+            <button class="btn btn-link p-0" type="button">
+                <i class="fa fa-edit fa-2x"></i>
+            </button>
+        </a>
 
+        <form
+                class="ms-2"
+                action="{{ url_for('products.delete_product', product_id=product.id)}}" method="POST"
+                onsubmit="return confirm('確認刪除此商品？')"
+        >
+            <button class="btn btn-link p-0" type="submit">
+                <i class="fa fa-trash fa-2x text-danger"></i>
+            </button>
+        </form>
+    </div>
     {% else %}
     <form method="post" action="{{ url_for('carts.new_cart', product_id=product.id)}}">
         <button class="btn" type="submit"><i class="fa fa-cart-plus fa-2x"></i></button>

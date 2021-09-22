@@ -26,7 +26,12 @@ def get_product(product_id):
         product = Product.find_by_id(product_id)
         if product:
             product.update_time = pretty_date(product.update_time)
-            return render_template('/products/product.html', product=product)
+
+            user_id = None
+            if session.get('user') and session['user'].get('id'):
+                user_id = session['user']['id']
+
+            return render_template('/products/product.html', product=product, user_id=user_id)
         else:
             flash(*product_not_found)
             return redirect(url_for('home'))
