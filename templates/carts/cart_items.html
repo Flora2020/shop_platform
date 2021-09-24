@@ -18,13 +18,16 @@
                             </button>
                         </form>
                     </div>
-                    <div class="col-sm-5 col-lg-4 py-2">
-                        單價：$ {{ item.price }}
+                    <div class="col-sm-4 py-2">
+                        賣家：{{ item.seller_name }}
                     </div>
-                    <div class="col-sm-6 col-lg-4 py-2">
-                        總價：$ {{ item.quantity * item.price }}
+                    <div class="col-sm-4 py-2">
+                        單價：{{ item.price }}
                     </div>
-                    <div class="col-sm-12 col-lg-4">
+                    <div class="col-sm-4 py-2">
+                        總價：{{ item.subtotal }}
+                    </div>
+                    <div class="col-sm-12">
                         <form class="needs-validation"
                               method="POST"
                               action="{{ url_for('carts.edit_cart_item', product_id=item.product_id )}}"
@@ -46,5 +49,6 @@
     </div>
 </div>
 {% endfor %}
+<h2 class="text-end">總計：$ {{ total }}</h2>
 <script src="{{ url_for('static', filename='javascript/bootstrap_form_validator.js') }}"></script>
 {% endblock %}

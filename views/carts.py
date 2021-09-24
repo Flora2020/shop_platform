@@ -2,7 +2,7 @@ from datetime import datetime
 from functools import partial
 from flask import Blueprint, session, redirect, flash, render_template, url_for
 
-from models import Product, Cart, CartItem
+from models import Product, Cart, CartItem, User
 from common.previous_page import previous_page
 from common.utils import find_one_dictionary_in_list
 from common.generate_many_flash_message import generate_many_flash_message
@@ -16,31 +16,63 @@ cart_blueprint = Blueprint('carts', __name__)
 @cart_blueprint.route('/')
 def get_cart_items():
     cart_items = None
+    total = 0
     form = EditCartItem()
 
     if session.get(USER) and session.get(USER).get(CART_ID):
-        cart_items = CartItem.query\
-            .with_entities(CartItem.product_id, CartItem.quantity,  Product.name, Product.price, Product.image_url)\
-            .join(Product)\
-            .filter(CartItem.cart_id == session.get(USER).get(CART_ID))\
-            .filter(CartItem.product_id == Product.id).all()
+        row = CartItem.query \
+            .with_entities(CartItem.product_id, CartItem.quantity, Product.name,
+                           Product.price, Product.image_url, Product.seller_id) \
+            .join(Product) \
+            .filter(CartItem.cart_id == session.get(USER).get(CART_ID)) \
+            .filter(CartItem.product_id == Product.id) \
+            .order_by(Product.seller_id.asc()) \
+            .all()
+
+        cart_items = []
+        for data in row:
+            subtotal = data['price'] * data[QUANTITY]
+            total += subtotal
+            seller_name = User.query.with_entities(User.display_name).filter(User.id == data.seller_id).first()
+            item = {
+                PRODUCT_ID: data[PRODUCT_ID],
+                QUANTITY: data[QUANTITY],
+                'name': data['name'],
+                'price': f'{data["price"]:,}',
+                'image_url': data['image_url'],
+                'subtotal': f'{subtotal:,}',
+                'seller_id': data['seller_id'],
+                'seller_name': seller_name[0]
+            }
+            cart_items.append(item)
 
     elif session.get(CART_ITEMS):
         for item in session[CART_ITEMS]:
-            product = Product.query\
-                .with_entities(Product.name, Product.price, Product.image_url)\
-                .filter(Product.id == item[PRODUCT_ID])\
+            product = Product.query \
+                .with_entities(Product.name, Product.price, Product.image_url, Product.seller_id, User.display_name) \
+                .join(User) \
+                .filter(Product.id == item[PRODUCT_ID]) \
                 .first()
+
+            subtotal = product.price * item[QUANTITY]
+            total += subtotal
+
             item['name'] = product.name
-            item['price'] = product.price
+            item['price'] = f'{product.price:,}'
+            item['subtotal'] = f'{subtotal:,}'
             item['image_url'] = product.image_url
+            item['seller_id'] = product.seller_id
+            item['seller_name'] = product.display_name
+
+        session[CART_ITEMS].sort(key=lambda item: item['seller_id'])
         cart_items = session[CART_ITEMS]
 
     if not cart_items:
         flash(*cart_is_empty)
         return redirect(url_for('home'))
 
-    return render_template('carts/cart_items.html', cart_items=cart_items, form=form)
+    total = f'{total:,}'
+    return render_template('carts/cart_items.html', cart_items=cart_items, form=form, total=total)
 
 
 @cart_blueprint.route('/<string:product_id>', methods=['POST'])
@@ -151,6 +183,3 @@ def delete_cart_item(product_id):
         flash(*product_not_found)
 
     return redirect(url_for('carts.get_cart_items'))
-
-
-
