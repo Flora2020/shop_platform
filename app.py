@@ -35,10 +35,11 @@ def home():
 
 
 if __name__ == '__main__':
-    from views import product_blueprint, user_blueprint, cart_blueprint
+    from views import product_blueprint, user_blueprint, cart_blueprint, order_blueprint
     from models import Product
 
     app.register_blueprint(product_blueprint, url_prefix='/products')
     app.register_blueprint(user_blueprint, url_prefix='/users')
     app.register_blueprint(cart_blueprint, url_prefix='/carts')
+    app.register_blueprint(order_blueprint, url_prefix='/orders')
     app.run()
