@@ -1,19 +1,39 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% for item in order_items %}
+<div class="card mb-3 border-0 border-bottom">
+    <div class="row g-0">
+        <div class="col-sm-3 col-lg-2 d-flex justify-content-center align-items-center">
+            <img src="{{ item.image_url }}" class="img-fluid rounded" alt="product image">
+        </div>
+        <div class="col-sm-9 col-lg-10">
+            <div class="card-body container">
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <h5 class="card-title">{{ item.name }}</h5>
+                    </div>
+                    <div class="col-sm-4 py-2">
+                        單價：{{ item.price }}
+                    </div>
+                    <div class="col-sm-4 py-2">
+                        數量：{{ item.quantity }}
+                    </div>
+                    <div class="col-sm-4 py-2">
+                        小計：{{ item.subtotal }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+<h2 class="text-end">總計：$ {{ amount }}</h2>
+
 <form class="row g-3 needs-validation" method="POST"
       action="{{ url_for('orders.new_order', order_id=order_id) }}"
       novalidate>
     {{ form.csrf_token }}
-
-    <div class="col-md-6">
-        {{ form.amount.label(class="form-label") }}
-        {{ form.amount(class="form-control", type="number", min=0, max=2147483647, step=1, autocomplete="on",
-        autofocus="autofocus") }}
-        <div class="invalid-feedback">
-            請輸入總金額。總金額須為 0 至 2147483647 之間的整數。
-        </div>
-    </div>
 
     <div class="col-md-6">
         {{ form.recipient.label(class="form-label") }}
@@ -37,7 +57,7 @@
         </div>
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-12">
         {{ form.address.label(class="form-label") }}
         {{ form.address(class="form-control", type="text", maxlength=100, autocomplete="on") }}
         <div class="invalid-feedback">

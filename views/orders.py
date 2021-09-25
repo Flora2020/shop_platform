@@ -1,12 +1,15 @@
-from flask import Blueprint, render_template, session, redirect, url_for, flash
+from functools import partial
+from flask import Blueprint, render_template, session, redirect, url_for, flash, request
 
 from common.forms import NewOrder
 from models import CartItem, Product, Order, OrderItem
 from models.user.decorators import require_login
 from common.constant import USER, CART_ID
-from common.flash_message import product_not_found
+from common.flash_message import product_not_found, order_not_found, order_complete
+from common.generate_many_flash_message import generate_many_flash_message
 
 order_blueprint = Blueprint('orders', __name__)
+flash_warning_messages = partial(generate_many_flash_message, category='warning')
 
 
 @order_blueprint.route('/order_item/<string:seller_id>', methods=['POST'])
@@ -54,10 +57,61 @@ def new_order_item(seller_id):
 @order_blueprint.route('/new/<string:order_id>', methods=['GET', 'POST'])
 @require_login
 def new_order(order_id):
+    # check order
+    if not order_id.isnumeric():
+        flash(*order_not_found)
+        return redirect(url_for('carts.get_cart_items'))
+
     order = Order.find_by_id(order_id)
+    if order.buyer_id != session.get(USER).get('id'):
+        flash(*order_not_found)
+        return redirect(url_for('carts.get_cart_items'))
+
+    amount = f'{order.amount:,}'
+    if not order:
+        flash(*order_not_found)
+        return redirect(url_for('carts.get_cart_items'))
+
+    row = OrderItem.query \
+        .with_entities(OrderItem.price, OrderItem.quantity, Product.image_url, Product.name) \
+        .join(Product) \
+        .filter(OrderItem.order_id == order_id) \
+        .all()
+
+    if not row:
+        flash(*order_not_found)
+        return redirect(url_for('carts.get_cart_items'))
+
+    order_items = []
+    for data in row:
+        order_items.append({
+            'price': f'{data.price:,}',
+            'quantity': data.quantity,
+            'subtotal': f'{data.price * data.quantity:,}',
+            'image_url': data.image_url,
+            'name': data.name
+        })
+
     form = NewOrder()
-    form.amount.data = order.amount
-    form.recipient.data = order.recipient
-    form.cell_phone.data = order.cell_phone if order.cell_phone != 'None' else None
-    form.address.data = order.address if order.address != 'None' else None
-    return render_template('orders/new.html', form=form, order_id=order_id)
+
+    if request.method == 'GET':
+        form.recipient.data = order.recipient
+        form.cell_phone.data = order.cell_phone if order.cell_phone != 'None' else None
+        form.address.data = order.address if order.address != 'None' else None
+
+    else:
+        if form.validate_on_submit():
+            order.recipient = form.recipient.data
+            order.cell_phone = form.cell_phone.data
+            order.address = form.address.data
+            order.save_to_db()
+
+            flash(*order_complete)
+            return redirect(url_for('home'))
+
+        else:
+            flash_warning_messages(form.recipient.errors)
+            flash_warning_messages(form.cell_phone.errors)
+            flash_warning_messages(form.address.errors)
+
+    return render_template('orders/new.html', form=form, order_id=order_id, order_items=order_items, amount=amount)

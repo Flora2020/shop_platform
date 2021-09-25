@@ -6,14 +6,6 @@ from common.forms.custom_validators import byte_length
 
 
 class NewOrder(FlaskForm):
-    amount = IntegerField(
-        u'總金額',
-        validators=[
-            InputRequired(message=u'請輸入總金額'),
-            NumberRange(min=0, max=2147483647, message=u'總金額須為 0 至 2147483647 間的整數')
-        ]
-    )
-
     recipient = StringField(
         u'收件者姓名',
         validators=[

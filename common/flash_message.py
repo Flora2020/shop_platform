@@ -22,3 +22,5 @@ login_required_msg = FlashMessage('需要先登入才能使用此功能', 'warni
 logout_success = FlashMessage('登出成功', 'success').to_tuple()
 product_update_success = FlashMessage('商品更新成功', 'success').to_tuple()
 cart_is_empty = FlashMessage('購物車中沒有商品', 'success').to_tuple()
+order_not_found = FlashMessage('查無此訂單', 'warning').to_tuple()
+order_complete = FlashMessage('訂單成立', 'success').to_tuple()
