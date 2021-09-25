@@ -16,7 +16,7 @@ class UserSeeder(Seeder):
               'display_name': generator.Name(),
               'email': generator.Email(),
               'password': Hash('12345678'),
-              'cell_phone': generator.String(pattern='(09)\d{8}'),
+              'cell_phone': generator.String(pattern='(+886.9)\d{8}'),
               'address': ChineseTextHolder(min_length=15, max_length=30),
               'store_introduction': ChineseTextHolder(min_length=200, max_length=600),
               'role': generator.String(pattern='(user|admin)')
