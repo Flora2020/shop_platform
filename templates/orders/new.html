@@ -2,7 +2,7 @@
 
 {% block content %}
 <form class="row g-3 needs-validation" method="POST"
-      action="{{ url_for('orders.new_order') }}"
+      action="{{ url_for('orders.new_order', order_id=order_id) }}"
       novalidate>
     {{ form.csrf_token }}
 

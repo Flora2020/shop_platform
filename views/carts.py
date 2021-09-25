@@ -16,6 +16,7 @@ cart_blueprint = Blueprint('carts', __name__)
 @cart_blueprint.route('/')
 def get_cart_items():
     cart_items = None
+    sellers = set()
     total = 0
     form = EditCartItem()
 
@@ -34,6 +35,7 @@ def get_cart_items():
             subtotal = data['price'] * data[QUANTITY]
             total += subtotal
             seller_name = User.query.with_entities(User.display_name).filter(User.id == data.seller_id).first()
+            sellers.add((data['seller_id'], seller_name[0]))
             item = {
                 PRODUCT_ID: data[PRODUCT_ID],
                 QUANTITY: data[QUANTITY],
@@ -56,6 +58,7 @@ def get_cart_items():
 
             subtotal = product.price * item[QUANTITY]
             total += subtotal
+            sellers.add((product.seller_id, product.display_name))
 
             item['name'] = product.name
             item['price'] = f'{product.price:,}'
@@ -72,7 +75,7 @@ def get_cart_items():
         return redirect(url_for('home'))
 
     total = f'{total:,}'
-    return render_template('carts/cart_items.html', cart_items=cart_items, form=form, total=total)
+    return render_template('carts/cart_items.html', cart_items=cart_items, form=form, total=total, sellers=sellers)
 
 
 @cart_blueprint.route('/<string:product_id>', methods=['POST'])

@@ -50,5 +50,14 @@
 </div>
 {% endfor %}
 <h2 class="text-end">總計：$ {{ total }}</h2>
+
+<div class="text-end my-3">
+    {% for seller in sellers %}
+    <form class="d-inline" action="{{ url_for('orders.new_order_item', seller_id=seller[0]) }}" method="POST">
+        <button class="btn btn-secondary" type="submit">結帳 {{ seller[1] }} 之商品</button>
+    </form>
+    {% endfor %}
+</div>
+
 <script src="{{ url_for('static', filename='javascript/bootstrap_form_validator.js') }}"></script>
 {% endblock %}
