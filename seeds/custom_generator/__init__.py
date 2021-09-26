@@ -4,3 +4,4 @@ from seeds.custom_generator.name_sequence import NameSequence
 from seeds.custom_generator.hash import Hash
 from seeds.custom_generator.shipping_status import ShippingStatusGenerator
 from seeds.custom_generator.payment_status import PaymentStatusGenerator
+from seeds.custom_generator.order_status import OrderStatusGenerator
