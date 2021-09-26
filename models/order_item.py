@@ -7,7 +7,9 @@ class OrderItem(db.Model):
 
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
+    name = db.Column(db.String(60), nullable=False)
     price = db.Column(db.Integer, nullable=False)
+    image_url = db.Column(db.String(100))
     quantity = db.Column(db.Integer,  nullable=False)
     insert_time = db.Column(db.DateTime, nullable=False, default=datetime.now)
     update_time = db.Column(db.DateTime, onupdate=datetime.now, nullable=False, default=datetime.now)

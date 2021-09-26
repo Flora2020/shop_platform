@@ -46,8 +46,14 @@ def new_order_item(seller_id):
 
     for item in cart_items:
         amount += item.product.price * item.quantity
-        OrderItem(order_id=order.id, product_id=item.product_id, price=item.product.price, quantity=item.quantity) \
-            .save_to_db()
+        OrderItem(
+            order_id=order.id,
+            product_id=item.product_id,
+            name=item.product.name,
+            price=item.product.price,
+            image_url=item.product.image_url,
+            quantity=item.quantity
+        ).save_to_db()
         item.delete()
 
     order.amount = amount
@@ -77,8 +83,7 @@ def new_order(order_id):
         return redirect(url_for('carts.get_cart_items'))
 
     row = OrderItem.query \
-        .with_entities(OrderItem.price, OrderItem.quantity, Product.image_url, Product.name) \
-        .join(Product) \
+        .with_entities(OrderItem.price, OrderItem.quantity, OrderItem.image_url, OrderItem.name) \
         .filter(OrderItem.order_id == order_id) \
         .all()
 
