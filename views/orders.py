@@ -5,7 +5,7 @@ from common.forms import NewOrder
 from models import CartItem, Product, Order, OrderItem
 from models.user.decorators import require_login
 from common.constant import USER, CART_ID
-from common.flash_message import product_not_found, order_not_found, order_complete
+from common.flash_message import product_not_found, order_not_found, order_complete, order_cannot_modify
 from common.generate_many_flash_message import generate_many_flash_message
 
 order_blueprint = Blueprint('orders', __name__)
@@ -26,8 +26,9 @@ def new_order_item(seller_id):
         recipient=session.get(USER).get('display_name'),
         cell_phone=session.get(USER).get('cell_phone') or 'None',
         address=session.get(USER).get('address') or 'None',
-        shipping_status_id=1,
-        payment_status_id=1,
+        shipping_status_id=1,  # 未出貨
+        payment_status_id=1,  # 未付款
+        order_status_id=1,  # 未結帳
         seller_id=seller_id,
         buyer_id=session.get(USER).get('id')
     )
@@ -57,7 +58,7 @@ def new_order_item(seller_id):
 @order_blueprint.route('/new/<string:order_id>', methods=['GET', 'POST'])
 @require_login
 def new_order(order_id):
-    # check order
+    # validate request
     if not order_id.isnumeric():
         flash(*order_not_found)
         return redirect(url_for('carts.get_cart_items'))
@@ -67,9 +68,12 @@ def new_order(order_id):
         flash(*order_not_found)
         return redirect(url_for('carts.get_cart_items'))
 
-    amount = f'{order.amount:,}'
     if not order:
         flash(*order_not_found)
+        return redirect(url_for('carts.get_cart_items'))
+
+    if order.order_status_id == 2 or order.order_status_id == 4:
+        flash(*order_cannot_modify)
         return redirect(url_for('carts.get_cart_items'))
 
     row = OrderItem.query \
@@ -82,6 +86,7 @@ def new_order(order_id):
         flash(*order_not_found)
         return redirect(url_for('carts.get_cart_items'))
 
+    amount = f'{order.amount:,}'
     order_items = []
     for data in row:
         order_items.append({
@@ -95,15 +100,18 @@ def new_order(order_id):
     form = NewOrder()
 
     if request.method == 'GET':
+        # user can check order
         form.recipient.data = order.recipient
         form.cell_phone.data = order.cell_phone if order.cell_phone != 'None' else None
         form.address.data = order.address if order.address != 'None' else None
 
     else:
+        # user can checkout order
         if form.validate_on_submit():
             order.recipient = form.recipient.data
             order.cell_phone = form.cell_phone.data
             order.address = form.address.data
+            order.order_status_id = 2  # 已結帳
             order.save_to_db()
 
             flash(*order_complete)
