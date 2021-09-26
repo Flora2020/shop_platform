@@ -19,7 +19,7 @@ class OrderItem(db.Model):
     rating = db.relationship('Rating', back_populates='order_item', uselist=False)
 
     def __repr__(self):
-        return f'<OrderItem {self.id}>'
+        return f'<OrderItem order_id:{self.order_id}, product_id: {self.product_id}>'
 
     def save_to_db(self):
         db.session.add(self)
