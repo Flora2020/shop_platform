@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<h2>明細</h2>
 {% for item in order_items %}
 <div class="card mb-3 border-0 border-bottom">
     <div class="row g-0">
-        <div class="col-sm-3 col-lg-2 d-flex justify-content-center align-items-center">
+        <div class="col-sm-2 col-lg-1 d-flex justify-content-center align-items-center">
             <img src="{{ item.image_url }}" class="img-fluid rounded" alt="product image">
         </div>
-        <div class="col-sm-9 col-lg-10">
+        <div class="col-sm-10 col-lg-11">
             <div class="card-body container">
                 <div class="row mt-2">
                     <div class="col-12">
@@ -28,8 +29,9 @@
     </div>
 </div>
 {% endfor %}
-<h2 class="text-end">總計：$ {{ amount }}</h2>
+<h3 class="text-end">總計：$ {{ amount }}</h3>
 
+<h2>收件資訊</h2>
 <form class="row g-3 needs-validation" method="POST"
       action="{{ url_for('orders.new_order', order_id=order_id) }}"
       novalidate>
@@ -66,7 +68,7 @@
     </div>
 
     <div class="col-md-12">
-        <button class="btn btn-secondary" type="submit">送出訂單</button>
+        <button class="btn btn-secondary" type="submit">結帳</button>
     </div>
 </form>
 
