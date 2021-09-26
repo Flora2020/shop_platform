@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% from 'macros/orders_table.html' import orders_table %}
+
+{% block content %}
+<h2>買東西訂單 <span class="text-muted fs-4">（僅顯示兩年內之訂單）</span></h2>
+{{ orders_table(buy_orders) }}
+
+<br/>
+<h2>賣東西訂單<span class="text-muted fs-4">（僅顯示兩年內之訂單）</span></h2>
+{{ orders_table(sell_orders) }}
+{% endblock %}

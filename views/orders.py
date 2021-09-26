@@ -1,8 +1,9 @@
 from functools import partial
+from datetime import datetime, timedelta
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
 
 from common.forms import NewOrder
-from models import CartItem, Product, Order, OrderItem
+from models import CartItem, Product, Order, OrderItem, OrderStatus, PaymentStatus, ShippingStatus
 from models.user.decorators import require_login
 from common.constant import USER, CART_ID
 from common.flash_message import product_not_found, order_not_found, order_complete, order_cannot_modify
@@ -120,7 +121,7 @@ def new_order(order_id):
             order.save_to_db()
 
             flash(*order_complete)
-            return redirect(url_for('home'))
+            return redirect(url_for('.get_orders'))
 
         else:
             flash_warning_messages(form.recipient.errors)
@@ -128,3 +129,54 @@ def new_order(order_id):
             flash_warning_messages(form.address.errors)
 
     return render_template('orders/new.html', form=form, order_id=order_id, order_items=order_items, amount=amount)
+
+
+@order_blueprint.route('/')
+@require_login
+def get_orders():
+    two_year_ago = datetime.now() - timedelta(days=732)
+    buy_order_row = Order.query \
+        .with_entities(Order, OrderStatus.status, PaymentStatus.status, ShippingStatus.status) \
+        .join(OrderStatus) \
+        .join(PaymentStatus) \
+        .join(ShippingStatus) \
+        .join(OrderItem) \
+        .filter(Order.buyer_id == session.get(USER).get('id')) \
+        .filter(Order.update_time >= two_year_ago) \
+        .order_by(Order.update_time.desc()) \
+        .all()
+
+    buy_orders = []
+    for data in buy_order_row:
+        buy_orders.append({
+            'order_id': data.Order.id,
+            'amount': f'{data.Order.amount:,}',
+            'update_time': datetime.strftime(data.Order.update_time, '%Y-%m-%d'),
+            'order_status': data[1],
+            'payment_status': data[2],
+            'shipping_status': data[3]
+        })
+
+    sell_order_row = Order.query \
+        .with_entities(Order, OrderStatus.status, PaymentStatus.status, ShippingStatus.status) \
+        .join(OrderStatus) \
+        .join(PaymentStatus) \
+        .join(ShippingStatus) \
+        .join(OrderItem) \
+        .filter(Order.seller_id == session.get(USER).get('id')) \
+        .filter(Order.update_time >= two_year_ago) \
+        .order_by(Order.update_time.desc()) \
+        .all()
+
+    sell_orders = []
+    for data in sell_order_row:
+        sell_orders.append({
+            'order_id': data.Order.id,
+            'amount': f'{data.Order.amount:,}',
+            'update_time': datetime.strftime(data.Order.update_time, '%Y-%m-%d'),
+            'order_status': data[1],
+            'payment_status': data[2],
+            'shipping_status': data[3]
+        })
+
+    return render_template('orders/orders.html', buy_orders=buy_orders, sell_orders=sell_orders)
