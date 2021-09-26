@@ -11,3 +11,4 @@ from models.order_item import OrderItem
 from models.rating import Rating
 from models.question import Question
 from models.reply import Reply
+from models.order_status import OrderStatus

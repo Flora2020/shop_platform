@@ -16,6 +16,7 @@ class Order(db.Model):
     buyer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     shipping_status_id = db.Column(db.Integer, db.ForeignKey('shipping_status.id'))
     payment_status_id = db.Column(db.Integer, db.ForeignKey('payment_status.id'))
+    order_status_id = db.Column(db.Integer, db.ForeignKey('order_status.id'))
 
     seller = db.relationship('User', primaryjoin='Order.seller_id == User.id', back_populates='delivery_orders')
     buyer = db.relationship('User', primaryjoin='Order.buyer_id == User.id', back_populates='purchase_order')
@@ -23,6 +24,7 @@ class Order(db.Model):
     payment_status = db.relationship('PaymentStatus', back_populates='orders')
     payments = db.relationship('Payment', back_populates='order')
     products = db.relationship('OrderItem', back_populates='order')
+    status = db.relationship('OrderStatus', back_populates='orders')
 
     def __repr__(self):
         return f'<Order {self.id}>'
