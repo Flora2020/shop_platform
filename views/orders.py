@@ -1,6 +1,7 @@
 from functools import partial
 from datetime import datetime, timedelta
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
+from flask_mail import Message
 
 from common.forms import NewOrder
 from models import CartItem, Product, Order, OrderItem, OrderStatus, PaymentStatus, ShippingStatus
@@ -8,6 +9,7 @@ from models.user.decorators import require_login
 from common.constant import USER, CART_ID
 from common.flash_message import product_not_found, order_not_found, order_complete, order_cannot_modify
 from common.generate_many_flash_message import generate_many_flash_message
+from app import mail
 
 order_blueprint = Blueprint('orders', __name__)
 flash_warning_messages = partial(generate_many_flash_message, category='warning')
@@ -121,6 +123,13 @@ def new_order(order_id):
             order.save_to_db()
 
             flash(*order_complete)
+            msg = Message(
+                subject='牙牙商城訂單已結帳',
+                recipients=[session.get(USER).get('email')],
+                html=f'<p>訂單已結帳。<a href="{request.url_root}orders/{order_id}">訂單明細連結</a></p>'
+            )
+            mail.send(msg)
+
             return redirect(url_for('.get_orders'))
 
         else:
