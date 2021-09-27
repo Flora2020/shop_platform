@@ -14,6 +14,7 @@ passlib = "*"
 flask-wtf = "*"
 wtforms = {extras = ["email"], version = "*"}
 werkzeug = "*"
+flask-mail = "*"
 
 [dev-packages]
 
