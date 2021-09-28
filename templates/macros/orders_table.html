@@ -1,4 +1,4 @@
-{% macro orders_table(orders) %}
+{% macro orders_table(orders, is_buyer) %}
 {% if orders %}
 <table class="table table-striped table-hover">
     <thead>
@@ -19,7 +19,15 @@
         <td><a href="{{ url_for('orders.get_order', order_id=item.order_id)}}">明細</a></td>
         <td>{{ item.amount }}</td>
         <td>{{ item.order_status }}</td>
-        <td>{{ item.payment_status }}</td>
+        <td>
+            {% if is_buyer and item.payment_status == '未付款' %}
+            <a href="{{ url_for('orders.pay_order', order_id=item.order_id)}}">
+                <button class="btn btn-secondary">立即付款</button>
+            </a>
+            {% else %}
+            {{ item.payment_status }}
+            {% endif %}
+        </td>
         <td>{{ item.shipping_status }}</td>
         <td>{{ item.update_time }}</td>
     </tr>

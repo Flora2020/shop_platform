@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% from 'macros/order_item_card.html' import order_item_card %}
+
+{% block content %}
+{{ order_item_card(order.order_items, order.amount) }}
+
+<form class="text-end" name="{{ FormName }}" method="POST" action="{{ FormAction }}">
+    {{ form.MerchantID(type="hidden", required="required") }}
+    {{ form.TradeInfo(type="hidden", required="required") }}
+    {{ form.TradeSha(type="hidden", required="required") }}
+    {{ form.Version(type="hidden", required="required") }}
+    <button class="btn btn-secondary" type="submit">確認付款</button>
+</form>
+
+{% endblock %}

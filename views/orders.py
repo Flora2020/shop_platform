@@ -3,12 +3,13 @@ from datetime import datetime, timedelta
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
 from flask_mail import Message
 
-from common.forms import NewOrder
+from common.forms import NewOrder, NewebPayForm
 from models import CartItem, Product, Order, OrderItem, OrderStatus, PaymentStatus, ShippingStatus
 from models.user.decorators import require_login
 from common.constant import USER, CART_ID
 from common.flash_message import product_not_found, order_not_found, order_complete, order_cannot_modify
 from common.generate_many_flash_message import generate_many_flash_message
+from helpers.orders_view_helper import get_order_data
 from app import mail
 
 order_blueprint = Blueprint('orders', __name__)
@@ -199,40 +200,31 @@ def get_order(order_id):
         return redirect(url_for('.get_orders'))
 
     user_id = session.get(USER).get('id')
-    row = Order.query \
-        .with_entities(Order, OrderItem, OrderStatus.status, PaymentStatus.status, ShippingStatus.status) \
-        .join(OrderItem) \
-        .join(OrderStatus) \
-        .join(PaymentStatus) \
-        .join(ShippingStatus) \
-        .filter(Order.id == order_id) \
-        .filter((Order.buyer_id == user_id) | (Order.seller_id == user_id)) \
-        .all()
+    order = get_order_data(order_id, user_id)
 
-    if not row:
+    if order is None:
         flash(*order_not_found)
         return redirect(url_for('.get_orders'))
 
-    order = {
-        'id': row[0].Order.id,
-        'amount': f'{row[0].Order.amount:,}',
-        'recipient': row[0].Order.recipient,
-        'cell_phone': row[0].Order.cell_phone,
-        'address': row[0].Order.address,
-        'insert_time': datetime.strftime(row[0].Order.insert_time, '%Y-%m-%d'),
-        'update_time': datetime.strftime(row[0].Order.update_time, '%Y-%m-%d'),
-        'order_status': row[0][2],
-        'payment_status': row[0][3],
-        'shipping_status': row[0][4],
-        'order_items': []
-    }
-    for data in row:
-        order['order_items'].append({
-            'image_url': data.OrderItem.image_url,
-            'name': data.OrderItem.name,
-            'price': f'{data.OrderItem.price:,}',
-            'quantity': data.OrderItem.quantity,
-            'subtotal': f'{data.OrderItem.price * data.OrderItem.quantity:,}'
-        })
+    return render_template('orders/order.html', order=order, user_id=user_id)
 
-    return render_template('orders/order.html', order=order)
+
+@order_blueprint.route('/payment/<string:order_id>')
+def pay_order(order_id):
+    if not order_id.isnumeric():
+        flash(*order_not_found)
+        return redirect(url_for('.get_orders'))
+
+    user_id = session.get(USER).get('id')
+    order = get_order_data(order_id, user_id)
+
+    if order is None:
+        flash(*order_not_found)
+        return redirect(url_for('.get_orders'))
+
+    # 藍新金流Newebpay_MPG串接手冊_MPG_1.1.1 page 33-38
+    form = NewebPayForm()
+    FormName = 'Newebpay'
+    FormAction = 'https://ccore.newebpay.com/MPG/mpg_gateway'
+
+    return render_template('orders/payment.html', form=form, order=order, FormName=FormName, FormAction=FormAction)

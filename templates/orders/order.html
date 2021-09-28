@@ -29,7 +29,15 @@
     </tr>
     <tr>
         <th scope="row">付款狀態</th>
-        <td colspan="2">{{ order.payment_status }}</td>
+        <td colspan="2">
+            {% if order.buyer_id == user_id and order.payment_status == '未付款' %}
+            <a href="{{ url_for('orders.pay_order', order_id=order.id)}}">
+                <button class="btn btn-secondary">立即付款</button>
+            </a>
+            {% else %}
+            {{ order.payment_status }}
+            {% endif %}
+        </td>
     </tr>
     <tr>
         <th scope="row">運送狀態</th>
