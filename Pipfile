@@ -15,6 +15,7 @@ flask-wtf = "*"
 wtforms = {extras = ["email"], version = "*"}
 werkzeug = "*"
 flask-mail = "*"
+pycryptodome = "*"
 
 [dev-packages]
 
