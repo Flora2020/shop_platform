@@ -19,6 +19,7 @@ def get_order_data(order_id, user_id):
     order = {
         'id': row[0].Order.id,
         'amount': f'{row[0].Order.amount:,}',
+        'amount_int': row[0].Order.amount,
         'recipient': row[0].Order.recipient,
         'cell_phone': row[0].Order.cell_phone,
         'address': row[0].Order.address,
