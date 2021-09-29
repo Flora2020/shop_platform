@@ -4,6 +4,7 @@ from typing import Dict, Union
 
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
+from Crypto.Hash import SHA256
 
 HashKey = os.environ.get('HashKey')
 HashIV = os.environ.get('HashIV')
@@ -45,3 +46,11 @@ def get_trade_info(order_id: Union[str, int], amount: Union[str, int], email: st
 
     trade_info = query_string_encode(data)
     return aes_encrypt(trade_info)
+
+
+def get_trade_sha(trade_info: str, key: str = HashKey, iv: str = HashIV):
+    # 藍新金流Newebpay_MPG串接手冊_MPG_1.1.1 page 70
+    msg = f'HashKey={key}&{trade_info}&HashIV={iv}'
+    h = SHA256.new()
+    h.update(msg.encode('ascii'))
+    return h.hexdigest().upper()

@@ -10,7 +10,7 @@ from models.user.decorators import require_login
 from common.constant import USER, CART_ID
 from common.flash_message import product_not_found, order_not_found, order_complete, order_cannot_modify
 from common.generate_many_flash_message import generate_many_flash_message
-from helpers.orders_view_helper import get_order_data, get_trade_info
+from helpers.orders_view_helper import get_order_data, get_trade_info, get_trade_sha
 from app import mail
 
 order_blueprint = Blueprint('orders', __name__)
@@ -226,13 +226,14 @@ def pay_order(order_id):
 
     # 藍新金流Newebpay_MPG串接手冊_MPG_1.1.1 page 33-38
     form = NewebPayForm()
-    form.MerchantID.data = os.environ.get('MerchantID')
-    form.TradeInfo.data = get_trade_info(
+    trade_info = get_trade_info(
         order_id=order_id,
         amount=order['amount_int'],
         email=session.get(USER).get('email')
     )
-    form.TradeSha.data = ''
+    form.MerchantID.data = os.environ.get('MerchantID')
+    form.TradeInfo.data = trade_info
+    form.TradeSha.data = get_trade_sha(trade_info)
     form.Version.data = 1.6
 
     FormName = 'Newebpay'
