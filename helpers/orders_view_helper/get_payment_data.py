@@ -1,9 +1,10 @@
 import os
 from datetime import datetime
+from json import loads
 from typing import Dict, Union
 
 from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad
+from Crypto.Util.Padding import pad, unpad
 from Crypto.Hash import SHA256
 
 HashKey = os.environ.get('HashKey')
@@ -22,9 +23,16 @@ def query_string_encode(data: Dict) -> str:
 def aes_encrypt(data: str, key: bytes = HashKey.encode('ascii'), iv: bytes = HashIV.encode('ascii')) -> str:
     # 藍新金流Newebpay_MPG串接手冊_MPG_1.1.1 page 65
     # aes-256-cbc
-    cipher = AES.new(key, AES.MODE_CBC, iv=iv)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
     ciphered_data = cipher.encrypt(pad(data.encode('utf8'), block_size=32))
     return ciphered_data.hex()
+
+
+def aes_decrypt(data: str, key: bytes = HashKey.encode('ascii'), iv: bytes = HashIV.encode('ascii')) -> str:
+    # 藍新金流Newebpay_MPG串接手冊_MPG_1.1.1 page 66
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    decrypted_data = unpad(cipher.decrypt(bytes.fromhex(data)), block_size=32)
+    return decrypted_data.decode('ascii')
 
 
 def get_trade_info(order_id: Union[str, int], amount: Union[str, int], email: str) -> str:
@@ -48,9 +56,13 @@ def get_trade_info(order_id: Union[str, int], amount: Union[str, int], email: st
     return aes_encrypt(trade_info)
 
 
-def get_trade_sha(trade_info: str, key: str = HashKey, iv: str = HashIV):
+def get_trade_sha(trade_info: str, key: str = HashKey, iv: str = HashIV) -> str:
     # 藍新金流Newebpay_MPG串接手冊_MPG_1.1.1 page 70
     msg = f'HashKey={key}&{trade_info}&HashIV={iv}'
     h = SHA256.new()
     h.update(msg.encode('ascii'))
     return h.hexdigest().upper()
+
+
+def decrypt_trade_info(trade_info: str) -> Dict:
+    return loads(aes_decrypt(trade_info))
