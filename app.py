@@ -50,4 +50,4 @@ if __name__ == '__main__':
     app.register_blueprint(user_blueprint, url_prefix='/users')
     app.register_blueprint(cart_blueprint, url_prefix='/carts')
     app.register_blueprint(order_blueprint, url_prefix='/orders')
-    app.run()
+    app.run(port=os.environ.get('PORT'))
