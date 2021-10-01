@@ -66,3 +66,7 @@ def get_trade_sha(trade_info: str, key: str = HashKey, iv: str = HashIV) -> str:
 
 def decrypt_trade_info(trade_info: str) -> Dict:
     return loads(aes_decrypt(trade_info))
+
+
+def is_trade_info_valid(trade_info: str, trade_sha: str) -> bool:
+    return get_trade_sha(trade_info) == trade_sha

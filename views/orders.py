@@ -5,12 +5,13 @@ from flask import Blueprint, render_template, session, redirect, url_for, flash,
 from flask_mail import Message
 
 from common.forms import NewOrder, NewebPayForm
-from models import CartItem, Product, Order, OrderItem, OrderStatus, PaymentStatus, ShippingStatus
+from models import CartItem, Product, Order, OrderItem, OrderStatus, PaymentStatus, ShippingStatus, Payment
 from models.user.decorators import require_login
 from common.constant import USER, CART_ID
 from common.flash_message import product_not_found, order_not_found, order_complete, order_cannot_modify
 from common.generate_many_flash_message import generate_many_flash_message
-from helpers.orders_view_helper import get_order_data, get_trade_info, get_trade_sha
+from helpers.orders_view_helper import get_order_data, get_trade_info, get_trade_sha, decrypt_trade_info,\
+    is_trade_info_valid
 from app import mail
 
 order_blueprint = Blueprint('orders', __name__)
@@ -240,3 +241,67 @@ def pay_order(order_id):
     FormAction = 'https://ccore.newebpay.com/MPG/mpg_gateway'
 
     return render_template('orders/payment.html', form=form, order=order, FormName=FormName, FormAction=FormAction)
+
+
+@order_blueprint.route('/newebpay/return', methods=['POST'])
+def newebpay_return_url_handler():
+    # TODO
+    return redirect(url_for('.get_orders'))
+
+
+@order_blueprint.route('/newebpay/notify', methods=['POST'])
+def newebpay_notify_url_handler():
+    # a http request from Newebpay, not from user
+    trade_info = request.form['TradeInfo']
+    trade_sha = request.form['TradeSha']
+    trade_data = decrypt_trade_info(trade_info)
+
+    if not is_trade_info_valid(trade_info, trade_sha):
+        msg = Message(
+            subject='牙牙商城藍新金流 TradeInfo 與 TradeSha 不符',
+            recipients=[os.environ.get('MAIL_DEFAULT_SENDER')],
+            html=f'<p>TradeInfo: {trade_info}</p><p>TradeSha: {trade_sha}</p><p>decrypt_TradeInfo: {trade_data}</p>'
+        )
+        mail.send(msg)
+        return 'done'
+
+    trade_result = trade_data['Result']
+    order = Order.find_by_id(trade_result['MerchantOrderNo'])
+
+    if not order:
+        msg = Message(
+            subject='牙牙商城藍新金流 查無此訂單',
+            recipients=[os.environ.get('MAIL_DEFAULT_SENDER')],
+            html=f'<p>TradeInfo: {trade_info}</p><p>TradeSha: {trade_sha}</p><p>decrypt_TradeInfo: {trade_data}</p>'
+        )
+        mail.send(msg)
+        return 'done'
+
+    Payment(
+        amount=int(trade_result['Amt']),
+        method=trade_result['PaymentMethod'],
+        newebpay_trade_sn=f'{trade_result["TradeNo"]}',
+        order_id=trade_result['MerchantOrderNo']
+    ).save_to_db()
+
+    if trade_data['Status'] != 'SUCCESS':
+        order.payment_status_id = 3
+        order.save_to_db()
+        return 'done'
+
+    if int(trade_result['Amt']) != order.amount:
+        msg = Message(
+            subject='牙牙商城藍新金流 付款金額與訂單不符',
+            recipients=[os.environ.get('MAIL_DEFAULT_SENDER')],
+            html=f'<p>decrypt_TradeInfo: {trade_data}</p><p>order.amount: {order.amount}</p>'
+        )
+        mail.send(msg)
+
+        order.payment_status_id = 3
+        order.save_to_db()
+        return 'done'
+
+    order.payment_status_id = 2
+    order.save_to_db()
+
+    return 'done'
