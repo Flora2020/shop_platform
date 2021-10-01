@@ -8,7 +8,8 @@ from common.forms import NewOrder, NewebPayForm
 from models import CartItem, Product, Order, OrderItem, OrderStatus, PaymentStatus, ShippingStatus, Payment
 from models.user.decorators import require_login
 from common.constant import USER, CART_ID
-from common.flash_message import product_not_found, order_not_found, order_complete, order_cannot_modify
+from common.flash_message import product_not_found, order_not_found, order_complete, order_cannot_modify,\
+    trade_info_invalid, paid_order_not_found, payment_fail, wrong_payment_amount, payment_success
 from common.generate_many_flash_message import generate_many_flash_message
 from helpers.orders_view_helper import get_order_data, get_trade_info, get_trade_sha, decrypt_trade_info,\
     is_trade_info_valid
@@ -245,8 +246,34 @@ def pay_order(order_id):
 
 @order_blueprint.route('/newebpay/return', methods=['POST'])
 def newebpay_return_url_handler():
-    # TODO
-    return redirect(url_for('.get_orders'))
+    # a http request from user, not from Newebpay
+    trade_info = request.form['TradeInfo']
+    trade_sha = request.form['TradeSha']
+    trade_data = decrypt_trade_info(trade_info)
+    if not is_trade_info_valid(trade_info, trade_sha):
+        flash(*trade_info_invalid)
+        return redirect(url_for('.get_orders'))
+
+    trade_result = trade_data['Result']
+    order = Order.find_by_id(trade_result['MerchantOrderNo'])
+
+    if not order:
+        flash(*paid_order_not_found)
+        return redirect(url_for('.get_orders'))
+
+    if trade_data['Status'] != 'SUCCESS':
+        flash(*payment_fail)
+        return redirect(url_for('.get_order', order_id=trade_result['MerchantOrderNo']))
+
+    if int(trade_result['Amt']) != order.amount:
+        flash(*wrong_payment_amount)
+        return redirect(url_for('.get_order', order_id=trade_result['MerchantOrderNo']))
+
+    order.payment_status_id = 2
+    order.save_to_db()  # make sure that order.payment_status_id is updated before render template
+    flash(*payment_success)
+
+    return redirect(url_for('.get_order', order_id=trade_result['MerchantOrderNo']))
 
 
 @order_blueprint.route('/newebpay/notify', methods=['POST'])
