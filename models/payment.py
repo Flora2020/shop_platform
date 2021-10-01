@@ -8,7 +8,7 @@ class Payment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     amount = db.Column(db.Integer, nullable=False)
     method = db.Column(db.String(50), nullable=False)
-    info = db.Column(db.String(100), nullable=False)
+    newebpay_trade_sn = db.Column(db.String(100), nullable=False)
     insert_time = db.Column(db.DateTime, nullable=False, default=datetime.now)
     update_time = db.Column(db.DateTime, onupdate=datetime.now, nullable=False, default=datetime.now)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'))
