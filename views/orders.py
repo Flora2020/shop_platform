@@ -65,12 +65,12 @@ def new_order_item(seller_id):
 
     order.amount = amount
     order.save_to_db()
-    return redirect(url_for('.new_order', order_id=str(order.id)))
+    return redirect(url_for('.checkout', order_id=str(order.id)))
 
 
-@order_blueprint.route('/new/<string:order_id>', methods=['GET', 'POST'])
+@order_blueprint.route('/checkout/<string:order_id>', methods=['GET', 'POST'])
 @require_login
-def new_order(order_id):
+def checkout(order_id):
     # validate request
     if not order_id.isnumeric():
         flash(*order_not_found)
@@ -141,7 +141,7 @@ def new_order(order_id):
             flash_warning_messages(form.cell_phone.errors)
             flash_warning_messages(form.address.errors)
 
-    return render_template('orders/new.html', form=form, order_id=order_id, order_items=order_items, amount=amount)
+    return render_template('orders/checkout.html', form=form, order_id=order_id, order_items=order_items, amount=amount)
 
 
 @order_blueprint.route('/')

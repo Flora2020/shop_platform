@@ -6,7 +6,7 @@
 
 <h2>收件資訊</h2>
 <form class="row g-3 needs-validation" method="POST"
-      action="{{ url_for('orders.new_order', order_id=order_id) }}"
+      action="{{ url_for('orders.checkout', order_id=order_id) }}"
       novalidate>
     {{ form.csrf_token }}
 
