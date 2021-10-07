@@ -3,7 +3,7 @@ from typing import Dict
 from passlib.hash import pbkdf2_sha256
 from flask import session
 
-from app import db
+from extension import db
 from models.cart import Cart
 from models.cart_item import CartItem
 from models.product import Product
