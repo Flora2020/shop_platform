@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template, session
+from flask import Flask, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_seeder import FlaskSeeder
@@ -31,20 +31,11 @@ mail = Mail(app)
 
 @app.route('/')
 def home():
-    products = Product.query \
-        .with_entities(Product.id, Product.name, Product.price, Product.image_url, Product.seller_id) \
-        .filter(Product.inventory > 0).order_by(Product.insert_time.desc()).all()
-
-    user_id = None
-    if session.get('user') and session['user'].get('id'):
-        user_id = session['user']['id']
-
-    return render_template('home.html', products=products, user_id=user_id)
+    return redirect(url_for('products.get_products'))
 
 
 if __name__ == '__main__':
     from views import product_blueprint, user_blueprint, cart_blueprint, order_blueprint
-    from models import Product
 
     app.register_blueprint(product_blueprint, url_prefix='/products')
     app.register_blueprint(user_blueprint, url_prefix='/users')

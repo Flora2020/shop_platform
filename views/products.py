@@ -13,7 +13,15 @@ product_blueprint = Blueprint('products', __name__)
 
 @product_blueprint.route('/')
 def get_products():
-    return redirect(url_for('home'))
+    products = Product.query \
+        .with_entities(Product.id, Product.name, Product.price, Product.image_url, Product.seller_id) \
+        .filter(Product.inventory > 0).order_by(Product.insert_time.desc()).all()
+
+    user_id = None
+    if session.get('user') and session['user'].get('id'):
+        user_id = session['user']['id']
+
+    return render_template('products/products.html', products=products, user_id=user_id)
 
 
 @product_blueprint.route('/<string:product_id>', methods=['GET'])
@@ -21,7 +29,7 @@ def get_product(product_id):
     if request.method == 'GET':
         if not product_id.isnumeric():
             flash(*product_not_found)
-            return redirect(url_for('home'))
+            return redirect(url_for('.get_products'))
 
         product = Product.find_by_id(product_id)
         if product:
@@ -34,18 +42,18 @@ def get_product(product_id):
             return render_template('/products/product.html', product=product, user_id=user_id)
         else:
             flash(*product_not_found)
-            return redirect(url_for('home'))
+            return redirect(url_for('.get_products'))
 
 
 @product_blueprint.route('/seller/<string:seller_id>')
 def get_seller_products(seller_id):
     if not seller_id.isnumeric():
         flash(*seller_products_not_found)
-        return redirect(url_for('home'))
+        return redirect(url_for('.get_products'))
 
-    products = Product.query\
-        .with_entities(Product.id, Product.name, Product.price, Product.image_url, Product.seller_id)\
-        .filter(Product.seller_id == seller_id, Product.inventory > 0)\
+    products = Product.query \
+        .with_entities(Product.id, Product.name, Product.price, Product.image_url, Product.seller_id) \
+        .filter(Product.seller_id == seller_id, Product.inventory > 0) \
         .order_by(Product.insert_time.desc()).all()
 
     if products:
@@ -53,10 +61,10 @@ def get_seller_products(seller_id):
         if session.get('user') and session['user'].get('id'):
             user_id = session['user']['id']
 
-        return render_template('home.html', products=products, user_id=user_id)
+        return render_template('products/products.html', products=products, user_id=user_id)
     else:
         flash(*seller_products_not_found)
-        return redirect(url_for('home'))
+        return redirect(url_for('.get_products'))
 
 
 @product_blueprint.route('/new', methods=['GET', 'POST'])
@@ -160,5 +168,3 @@ def delete_product(product_id):
 
     product.delete()
     return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
-
-
