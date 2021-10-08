@@ -30,3 +30,7 @@ paid_order_not_found = FlashMessage('查無此訂單，請等候信件通知', '
 payment_fail = FlashMessage('付款失敗，請稍後再試', 'warning').to_tuple()
 wrong_payment_amount = FlashMessage('付款金額與訂單不符，請等候信件通知', 'warning').to_tuple()
 payment_success = FlashMessage('付款成功！', 'success').to_tuple()
+cannot_cancel_canceled_order = FlashMessage('無法取消「已取消」之訂單', 'warning').to_tuple()
+cannot_cancel_paid_order = FlashMessage('無法取消「已付款」之訂單', 'warning').to_tuple()
+only_backlog_order_is_cancelable = FlashMessage('只能取消「未出貨」之訂單', 'warning').to_tuple()
+order_canceled = FlashMessage('訂單已取消', 'success').to_tuple()

@@ -9,7 +9,8 @@ from models import CartItem, Product, Order, OrderItem, OrderStatus, PaymentStat
 from models.user.decorators import require_login
 from common.constant import USER, CART_ID
 from common.flash_message import product_not_found, order_not_found, order_complete, order_cannot_modify,\
-    trade_info_invalid, paid_order_not_found, payment_fail, wrong_payment_amount, payment_success
+    trade_info_invalid, paid_order_not_found, payment_fail, wrong_payment_amount, payment_success, \
+    cannot_cancel_canceled_order, cannot_cancel_paid_order, only_backlog_order_is_cancelable, order_canceled
 from common.generate_many_flash_message import generate_many_flash_message
 from helpers.orders_view_helper import get_order_data, get_trade_info, get_trade_sha, decrypt_trade_info,\
     is_trade_info_valid
@@ -17,6 +18,10 @@ from app import mail
 
 order_blueprint = Blueprint('orders', __name__)
 flash_warning_messages = partial(generate_many_flash_message, category='warning')
+
+ORDER_STATUS = {'canceled': 4}
+PAYMENT_STATUS = {'success': 2}
+SHIPPING_STATUS = {'backlog': 1}
 
 
 @order_blueprint.route('/order_item/<string:seller_id>', methods=['POST'])
@@ -332,3 +337,39 @@ def newebpay_notify_url_handler():
     order.save_to_db()
 
     return 'done'
+
+
+@order_blueprint.route('cancel/<string:order_id>', methods=['POST'])
+@require_login
+def cancel_order(order_id):
+    if not order_id.isnumeric():
+        flash(*order_not_found)
+        return redirect(url_for('.get_orders'))
+
+    order = Order.find_by_id(order_id)
+    if order is None:
+        flash(*order_not_found)
+        return redirect(url_for('.get_orders'))
+
+    user_id = session.get(USER).get('id')
+    if order.buyer_id != user_id and order.seller_id != user_id:
+        flash(*order_not_found)
+        return redirect(url_for('.get_orders'))
+
+    if order.order_status_id == ORDER_STATUS['canceled']:
+        flash(*cannot_cancel_canceled_order)
+        return redirect(url_for('.get_orders'))
+
+    if order.payment_status_id == PAYMENT_STATUS['success']:
+        flash(*cannot_cancel_paid_order)
+        return redirect(url_for('.get_orders'))
+
+    if order.shipping_status_id != SHIPPING_STATUS['backlog']:
+        flash(*only_backlog_order_is_cancelable)
+        return redirect(url_for('.get_orders'))
+
+    order.order_status_id = ORDER_STATUS['canceled']
+    order.save_to_db()
+    flash(*order_canceled)
+
+    return redirect(url_for('.get_orders'))

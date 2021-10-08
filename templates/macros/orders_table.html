@@ -10,6 +10,7 @@
         <th scope="col" class="text-center">付款</th>
         <th scope="col" class="text-center">運送</th>
         <th scope="col">更新日期</th>
+        <th scope="col"></th>
     </tr>
     </thead>
     <tbody>
@@ -38,6 +39,16 @@
         </td>
         <td class="text-center">{{ item.shipping_status }}</td>
         <td>{{ item.update_time }}</td>
+        <td>
+            <form action="{{ url_for('orders.cancel_order', order_id=item.order_id) }}" method="POST">
+                <button class="btn btn-danger"
+                        type="submit"
+                        onclick="return confirm('確定取消編號 {{ item.order_id }} 之訂單？')"
+                >
+                    取消
+                </button>
+            </form>
+        </td>
     </tr>
     {% endfor %}
     </tbody>
