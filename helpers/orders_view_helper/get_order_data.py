@@ -4,7 +4,7 @@ from models import Order, OrderItem, OrderStatus, PaymentStatus, ShippingStatus
 
 def get_order_data(order_id, user_id):
     row = Order.query \
-        .with_entities(Order, OrderItem, OrderStatus.status, PaymentStatus.status, ShippingStatus.status) \
+        .with_entities(Order, OrderItem, OrderStatus, PaymentStatus, ShippingStatus) \
         .join(OrderItem) \
         .join(OrderStatus) \
         .join(PaymentStatus) \
@@ -26,9 +26,12 @@ def get_order_data(order_id, user_id):
         'insert_time': datetime.strftime(row[0].Order.insert_time, '%Y-%m-%d'),
         'update_time': datetime.strftime(row[0].Order.update_time, '%Y-%m-%d'),
         'buyer_id': row[0].Order.buyer_id,
-        'order_status': row[0][2],
-        'payment_status': row[0][3],
-        'shipping_status': row[0][4],
+        'order_status_id': row[0].OrderStatus.id,
+        'order_status': row[0].OrderStatus.status,
+        'payment_status_id': row[0].PaymentStatus.id,
+        'payment_status': row[0].PaymentStatus.status,
+        'shipping_status_id': row[0].ShippingStatus.id,
+        'shipping_status': row[0].ShippingStatus.status,
         'order_items': []
     }
     for data in row:

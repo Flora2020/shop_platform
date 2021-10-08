@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% from 'macros/order_item_card.html' import order_item_card %}
+{% from 'macros/cancel_button.html' import cancel_button %}
 
 {% block content %}
 {{ order_item_card(order.order_items, order.amount) }}
@@ -58,6 +59,12 @@
     <tr>
         <th scope="row">更新日期</th>
         <td colspan="2">{{ order.update_time }}</td>
+    </tr>
+    <tr>
+        <th scope="row"></th>
+        <td colspan="2">
+            {{ cancel_button(order, ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS) }}
+        </td>
     </tr>
     </tbody>
 </table>

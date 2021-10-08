@@ -1,4 +1,5 @@
-{% macro orders_table(orders, is_buyer) %}
+{% macro orders_table(orders, is_buyer, ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS) %}
+{% from 'macros/cancel_button.html' import cancel_button %}
 {% if orders %}
 <table class="table table-striped table-hover align-middle">
     <thead>
@@ -16,12 +17,12 @@
     <tbody>
     {% for item in orders %}
     <tr>
-        <th scope="row">{{ item.order_id }}</th>
-        <td><a href="{{ url_for('orders.get_order', order_id=item.order_id)}}">明細</a></td>
+        <th scope="row">{{ item.id }}</th>
+        <td><a href="{{ url_for('orders.get_order', order_id=item.id)}}">明細</a></td>
         <td class="text-end">{{ item.amount }}</td>
         <td class="text-center">
             {% if is_buyer and item.order_status == '未結帳' %}
-            <a href="{{ url_for('orders.checkout', order_id=item.order_id)}}">
+            <a href="{{ url_for('orders.checkout', order_id=item.id)}}">
                 <button class="btn btn-secondary">立即結帳</button>
             </a>
             {% else %}
@@ -30,7 +31,7 @@
         </td>
         <td class="text-center">
             {% if is_buyer and item.payment_status == '未付款' and item.order_status == '已結帳' %}
-            <a href="{{ url_for('orders.pay_order', order_id=item.order_id)}}">
+            <a href="{{ url_for('orders.pay_order', order_id=item.id)}}">
                 <button class="btn btn-secondary">立即付款</button>
             </a>
             {% else %}
@@ -40,14 +41,7 @@
         <td class="text-center">{{ item.shipping_status }}</td>
         <td>{{ item.update_time }}</td>
         <td>
-            <form action="{{ url_for('orders.cancel_order', order_id=item.order_id) }}" method="POST">
-                <button class="btn btn-danger"
-                        type="submit"
-                        onclick="return confirm('確定取消編號 {{ item.order_id }} 之訂單？')"
-                >
-                    取消
-                </button>
-            </form>
+            {{ cancel_button(item, ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS) }}
         </td>
     </tr>
     {% endfor %}

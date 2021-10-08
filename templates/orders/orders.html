@@ -3,9 +3,9 @@
 
 {% block content %}
 <h2>買東西訂單 <span class="text-muted fs-4">（僅顯示兩年內之訂單）</span></h2>
-{{ orders_table(buy_orders, true) }}
+{{ orders_table(buy_orders, true, ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS) }}
 
 <br/>
 <h2>賣東西訂單<span class="text-muted fs-4">（僅顯示兩年內之訂單）</span></h2>
-{{ orders_table(sell_orders, false) }}
+{{ orders_table(sell_orders, false, ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS) }}
 {% endblock %}

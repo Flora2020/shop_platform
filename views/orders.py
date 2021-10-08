@@ -154,7 +154,7 @@ def checkout(order_id):
 def get_orders():
     two_year_ago = datetime.now() - timedelta(days=732)
     buy_order_row = Order.query \
-        .with_entities(Order, OrderStatus.status, PaymentStatus.status, ShippingStatus.status) \
+        .with_entities(Order, OrderStatus, PaymentStatus, ShippingStatus) \
         .join(OrderStatus) \
         .join(PaymentStatus) \
         .join(ShippingStatus) \
@@ -167,16 +167,19 @@ def get_orders():
     buy_orders = []
     for data in buy_order_row:
         buy_orders.append({
-            'order_id': data.Order.id,
+            'id': data.Order.id,
             'amount': f'{data.Order.amount:,}',
             'update_time': datetime.strftime(data.Order.update_time, '%Y-%m-%d'),
-            'order_status': data[1],
-            'payment_status': data[2],
-            'shipping_status': data[3]
+            'order_status_id': data.OrderStatus.id,
+            'order_status': data.OrderStatus.status,
+            'payment_status_id': data.PaymentStatus.id,
+            'payment_status': data.PaymentStatus.status,
+            'shipping_status_id': data.ShippingStatus.id,
+            'shipping_status': data.ShippingStatus.status
         })
 
     sell_order_row = Order.query \
-        .with_entities(Order, OrderStatus.status, PaymentStatus.status, ShippingStatus.status) \
+        .with_entities(Order, OrderStatus, PaymentStatus, ShippingStatus) \
         .join(OrderStatus) \
         .join(PaymentStatus) \
         .join(ShippingStatus) \
@@ -189,15 +192,24 @@ def get_orders():
     sell_orders = []
     for data in sell_order_row:
         sell_orders.append({
-            'order_id': data.Order.id,
+            'id': data.Order.id,
             'amount': f'{data.Order.amount:,}',
             'update_time': datetime.strftime(data.Order.update_time, '%Y-%m-%d'),
-            'order_status': data[1],
-            'payment_status': data[2],
-            'shipping_status': data[3]
+            'order_status_id': data.OrderStatus.id,
+            'order_status': data.OrderStatus.status,
+            'payment_status_id': data.PaymentStatus.id,
+            'payment_status': data.PaymentStatus.status,
+            'shipping_status_id': data.ShippingStatus.id,
+            'shipping_status': data.ShippingStatus.status
         })
 
-    return render_template('orders/orders.html', buy_orders=buy_orders, sell_orders=sell_orders)
+    return render_template('orders/orders.html',
+                           buy_orders=buy_orders,
+                           sell_orders=sell_orders,
+                           ORDER_STATUS=ORDER_STATUS,
+                           PAYMENT_STATUS=PAYMENT_STATUS,
+                           SHIPPING_STATUS=SHIPPING_STATUS
+                           )
 
 
 @order_blueprint.route('/<string:order_id>')
@@ -214,7 +226,12 @@ def get_order(order_id):
         flash(*order_not_found)
         return redirect(url_for('.get_orders'))
 
-    return render_template('orders/order.html', order=order, user_id=user_id)
+    return render_template('orders/order.html',
+                           order=order,
+                           user_id=user_id,
+                           ORDER_STATUS=ORDER_STATUS,
+                           PAYMENT_STATUS=PAYMENT_STATUS,
+                           SHIPPING_STATUS=SHIPPING_STATUS)
 
 
 @order_blueprint.route('/payment/<string:order_id>')

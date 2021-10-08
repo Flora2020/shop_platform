@@ -1,0 +1,20 @@
+{% macro cancel_button(order, ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS) %}
+
+{%
+    if order.order_status_id == ORDER_STATUS['canceled'] or
+       order.payment_status_id == PAYMENT_STATUS['success'] or
+       order.shipping_status_id != SHIPPING_STATUS['backlog']
+%}
+<button class="btn btn-danger" disabled>取消</button>
+{% else %}
+<form action="{{ url_for('orders.cancel_order', order_id=order.id) }}" method="POST">
+    <button class="btn btn-danger"
+            type="submit"
+            onclick="return confirm('確定取消編號 {{ order.id }} 之訂單？')"
+    >
+        取消
+    </button>
+</form>
+{% endif %}
+
+{% endmacro %}
