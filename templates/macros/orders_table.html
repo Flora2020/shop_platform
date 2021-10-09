@@ -21,7 +21,7 @@
         <td><a href="{{ url_for('orders.get_order', order_id=item.id)}}">明細</a></td>
         <td class="text-end">{{ item.amount }}</td>
         <td class="text-center">
-            {% if is_buyer and item.order_status == '未結帳' %}
+            {% if is_buyer and item.order_status_id == ORDER_STATUS['unchecked'] %}
             <a href="{{ url_for('orders.checkout', order_id=item.id)}}">
                 <button class="btn btn-secondary">立即結帳</button>
             </a>
@@ -30,7 +30,10 @@
             {% endif %}
         </td>
         <td class="text-center">
-            {% if is_buyer and item.payment_status == '未付款' and item.order_status == '已結帳' %}
+            {% if is_buyer and
+                   item.order_status_id == ORDER_STATUS['checked_out'] and
+                   item.payment_status_id != PAYMENT_STATUS['success']
+            %}
             <a href="{{ url_for('orders.pay_order', order_id=item.id)}}">
                 <button class="btn btn-secondary">立即付款</button>
             </a>

@@ -19,8 +19,16 @@ from app import mail
 order_blueprint = Blueprint('orders', __name__)
 flash_warning_messages = partial(generate_many_flash_message, category='warning')
 
-ORDER_STATUS = {'canceled': 4}
-PAYMENT_STATUS = {'success': 2}
+ORDER_STATUS = {
+    'unchecked': 1,
+    'checked_out': 2,
+    'canceled': 4
+}
+PAYMENT_STATUS = {
+    'unpaid': 1,
+    'success': 2,
+    'failure': 3
+}
 SHIPPING_STATUS = {'backlog': 1}
 
 
@@ -38,9 +46,9 @@ def new_order_item(seller_id):
         recipient=session.get(USER).get('display_name'),
         cell_phone=session.get(USER).get('cell_phone') or 'None',
         address=session.get(USER).get('address') or 'None',
-        shipping_status_id=1,  # 未出貨
-        payment_status_id=1,  # 未付款
-        order_status_id=1,  # 未結帳
+        shipping_status_id=SHIPPING_STATUS['backlog'],
+        payment_status_id=PAYMENT_STATUS['unpaid'],
+        order_status_id=ORDER_STATUS['unchecked'],
         seller_id=seller_id,
         buyer_id=session.get(USER).get('id')
     )
@@ -90,7 +98,7 @@ def checkout(order_id):
         flash(*order_not_found)
         return redirect(url_for('carts.get_cart_items'))
 
-    if order.order_status_id == 2 or order.order_status_id == 4:
+    if order.order_status_id == ORDER_STATUS['checked_out'] or order.order_status_id == ORDER_STATUS['canceled']:
         flash(*order_cannot_modify)
         return redirect(url_for('carts.get_cart_items'))
 
@@ -128,7 +136,7 @@ def checkout(order_id):
             order.recipient = form.recipient.data
             order.cell_phone = form.cell_phone.data
             order.address = form.address.data
-            order.order_status_id = 2  # 已結帳
+            order.order_status_id = ORDER_STATUS['checked_out']
             order.save_to_db()
 
             flash(*order_complete)
@@ -291,7 +299,7 @@ def newebpay_return_url_handler():
         flash(*wrong_payment_amount)
         return redirect(url_for('.get_order', order_id=trade_result['MerchantOrderNo']))
 
-    order.payment_status_id = 2
+    order.payment_status_id = PAYMENT_STATUS['success']
     order.save_to_db()  # make sure that order.payment_status_id is updated before render template
     flash(*payment_success)
 
@@ -334,7 +342,7 @@ def newebpay_notify_url_handler():
     ).save_to_db()
 
     if trade_data['Status'] != 'SUCCESS':
-        order.payment_status_id = 3
+        order.payment_status_id = PAYMENT_STATUS['failure']
         order.save_to_db()
         return 'done'
 
@@ -346,11 +354,11 @@ def newebpay_notify_url_handler():
         )
         mail.send(msg)
 
-        order.payment_status_id = 3
+        order.payment_status_id = PAYMENT_STATUS['failure']
         order.save_to_db()
         return 'done'
 
-    order.payment_status_id = 2
+    order.payment_status_id = PAYMENT_STATUS['success']
     order.save_to_db()
 
     return 'done'

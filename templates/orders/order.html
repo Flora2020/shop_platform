@@ -27,7 +27,7 @@
     <tr>
         <th scope="row">訂單狀態</th>
         <td colspan="2">
-            {% if order.buyer_id == user_id and order.order_status == '未結帳' %}
+            {% if order.buyer_id == user_id and order.order_status_id == ORDER_STATUS['unchecked'] %}
             <a href="{{ url_for('orders.checkout', order_id=order.id)}}">
                 <button class="btn btn-secondary">立即結帳</button>
             </a>
@@ -39,7 +39,10 @@
     <tr>
         <th scope="row">付款狀態</th>
         <td colspan="2">
-            {% if order.buyer_id == user_id and order.payment_status == '未付款' and order.order_status == '已結帳' %}
+            {% if order.buyer_id == user_id and
+                   order.order_status_id == ORDER_STATUS['checked_out'] and
+                   order.payment_status_id != PAYMENT_STATUS['success']
+            %}
             <a href="{{ url_for('orders.pay_order', order_id=order.id)}}">
                 <button class="btn btn-secondary">立即付款</button>
             </a>
