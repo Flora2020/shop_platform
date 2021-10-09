@@ -149,7 +149,10 @@ def edit_product(product_id):
 @require_login
 def delete_product(product_id):
     product = Product.find_by_id(product_id)
-    # TODO: fix: check if product exist
+    if not product:
+        flash(*product_not_found)
+        return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
+
     if product.seller_id != session['user']['id']:
         flash(*product_not_found)
         return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
