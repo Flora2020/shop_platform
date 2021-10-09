@@ -27,10 +27,6 @@ def get_products():
 @product_blueprint.route('/<string:product_id>', methods=['GET'])
 def get_product(product_id):
     if request.method == 'GET':
-        if not product_id.isnumeric():
-            flash(*product_not_found)
-            return redirect(url_for('.get_products'))
-
         product = Product.find_by_id(product_id)
         if product:
             product.update_time = pretty_date(product.update_time)
@@ -101,11 +97,8 @@ def new_product():
 @product_blueprint.route('/edit/<string:product_id>', methods=['GET', 'POST'])
 @require_login
 def edit_product(product_id):
-    if not product_id.isnumeric():
-        flash(*product_not_found)
-        return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
-
     product = Product.find_by_id(product_id)
+    # TODO: fix: user can edit product created by other user
     form = NewProduct()
     categories = Category.query.with_entities(Category.id, Category.name).all()
     form.category.choices = [(category.id, category.name) for category in categories]
@@ -156,12 +149,8 @@ def edit_product(product_id):
 @product_blueprint.route('/delete/<string:product_id>', methods=['POST'])
 @require_login
 def delete_product(product_id):
-    if not product_id.isnumeric():
-        flash(*product_not_found)
-        return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
-
     product = Product.find_by_id(product_id)
-
+    # TODO: fix: check if product exist
     if product.seller_id != session['user']['id']:
         flash(*product_not_found)
         return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
