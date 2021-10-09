@@ -80,7 +80,7 @@ def get_cart_items():
 
 @cart_blueprint.route('/<string:product_id>', methods=['POST'])
 def new_cart(product_id):
-    if not product_id.isnumeric() or not Product.find_by_id(product_id):
+    if not Product.find_by_id(product_id):
         flash(*product_not_found)
         return redirect(previous_page())
 
@@ -120,7 +120,7 @@ def new_cart(product_id):
 
 @cart_blueprint.route('/edit/<string:product_id>', methods=['POST'])
 def edit_cart_item(product_id):
-    if not product_id.isnumeric() or not Product.find_by_id(product_id):
+    if not Product.find_by_id(product_id):
         flash(*product_not_found)
         return redirect(previous_page())
 
@@ -156,7 +156,7 @@ def edit_cart_item(product_id):
 
 @cart_blueprint.route('/delete/<string:product_id>', methods=['POST'])
 def delete_cart_item(product_id):
-    if not product_id.isnumeric or not Product.find_by_id(product_id):
+    if not Product.find_by_id(product_id):
         flash(*product_not_found)
         return redirect(url_for('carts.get_cart_items'))
 
