@@ -1,3 +1,4 @@
+from typing import Union
 from extension import db
 from datetime import datetime
 
@@ -34,5 +35,8 @@ class Order(db.Model):
         db.session.commit()
 
     @classmethod
-    def find_by_id(cls, _id):
+    def find_by_id(cls, _id: Union[str, int]) -> Union['Order', None]:
+        if type(_id) is str and not _id.isnumeric():
+            return None
+
         return cls.query.filter_by(id=_id).first()

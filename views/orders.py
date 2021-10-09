@@ -86,16 +86,12 @@ def new_order_item(seller_id):
 @require_login
 def checkout(order_id):
     # validate request
-    if not order_id.isnumeric():
-        flash(*order_not_found)
-        return redirect(url_for('carts.get_cart_items'))
-
     order = Order.find_by_id(order_id)
-    if order.buyer_id != session.get(USER).get('id'):
+    if not order:
         flash(*order_not_found)
         return redirect(url_for('carts.get_cart_items'))
 
-    if not order:
+    if order.buyer_id != session.get(USER).get('id'):
         flash(*order_not_found)
         return redirect(url_for('carts.get_cart_items'))
 
@@ -224,10 +220,6 @@ def get_orders():
 @order_blueprint.route('/<string:order_id>')
 @require_login
 def get_order(order_id):
-    if not order_id.isnumeric():
-        flash(*order_not_found)
-        return redirect(url_for('.get_orders'))
-
     user_id = session.get(USER).get('id')
     order = get_order_data(order_id, user_id)
 
@@ -246,10 +238,6 @@ def get_order(order_id):
 @order_blueprint.route('/payment/<string:order_id>')
 @require_login
 def pay_order(order_id):
-    if not order_id.isnumeric():
-        flash(*order_not_found)
-        return redirect(url_for('.get_orders'))
-
     user_id = session.get(USER).get('id')
     order = get_order_data(order_id, user_id)
 
@@ -368,10 +356,6 @@ def newebpay_notify_url_handler():
 @order_blueprint.route('cancel/<string:order_id>', methods=['POST'])
 @require_login
 def cancel_order(order_id):
-    if not order_id.isnumeric():
-        flash(*order_not_found)
-        return redirect(url_for('.get_orders'))
-
     order = Order.find_by_id(order_id)
     if order is None:
         flash(*order_not_found)

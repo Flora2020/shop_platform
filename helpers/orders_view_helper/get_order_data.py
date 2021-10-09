@@ -1,8 +1,15 @@
+from typing import Union, Dict
 from datetime import datetime
 from models import Order, OrderItem, OrderStatus, PaymentStatus, ShippingStatus
 
 
-def get_order_data(order_id, user_id):
+def get_order_data(order_id: Union[str, int], user_id: Union[str, int]) -> Union[None, Dict]:
+    if type(order_id) is str and not order_id.isnumeric():
+        return None
+
+    if type(user_id) is str and not user_id.isnumeric():
+        return None
+
     row = Order.query \
         .with_entities(Order, OrderItem, OrderStatus, PaymentStatus, ShippingStatus) \
         .join(OrderItem) \
