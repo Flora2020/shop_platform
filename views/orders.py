@@ -8,11 +8,12 @@ from common.forms import NewOrder, NewebPayForm
 from models import CartItem, Product, Order, OrderItem, OrderStatus, PaymentStatus, ShippingStatus, Payment
 from models.user.decorators import require_login
 from common.constant import USER, CART_ID
-from common.flash_message import product_not_found, order_not_found, order_complete, order_cannot_modify,\
-    trade_info_invalid, paid_order_not_found, payment_fail, wrong_payment_amount, payment_success, \
-    cannot_cancel_canceled_order, cannot_cancel_paid_order, only_backlog_order_is_cancelable, order_canceled
+from common.flash_message import product_not_found, order_not_found, order_complete, \
+    cannot_checkout_checked_out_or_canceled_order, trade_info_invalid, paid_order_not_found, payment_fail, \
+    wrong_payment_amount, payment_success, cannot_cancel_canceled_order, cannot_cancel_paid_order, \
+    only_backlog_order_is_cancelable, order_canceled
 from common.generate_many_flash_message import generate_many_flash_message
-from helpers.orders_view_helper import get_order_data, get_trade_info, get_trade_sha, decrypt_trade_info,\
+from helpers.orders_view_helper import get_order_data, get_trade_info, get_trade_sha, decrypt_trade_info, \
     is_trade_info_valid
 from app import mail
 
@@ -99,7 +100,7 @@ def checkout(order_id):
         return redirect(url_for('carts.get_cart_items'))
 
     if order.order_status_id == ORDER_STATUS['checked_out'] or order.order_status_id == ORDER_STATUS['canceled']:
-        flash(*order_cannot_modify)
+        flash(*cannot_checkout_checked_out_or_canceled_order)
         return redirect(url_for('carts.get_cart_items'))
 
     row = OrderItem.query \

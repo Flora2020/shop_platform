@@ -34,7 +34,7 @@ cart_is_empty = FlashMessage('購物車中沒有商品', 'success').to_tuple()
 
 # view.orders
 order_not_found = FlashMessage('查無此訂單', 'warning').to_tuple()
-order_cannot_modify = FlashMessage('訂單已結帳或已取消，無法修改', 'warning').to_tuple()
+cannot_checkout_checked_out_or_canceled_order = FlashMessage('訂單已結帳或已取消，無法結帳', 'warning').to_tuple()
 trade_info_invalid = FlashMessage('交易資訊異常，請等候信件通知', 'warning').to_tuple()
 paid_order_not_found = FlashMessage('查無此訂單，請等候信件通知', 'warning').to_tuple()
 payment_fail = FlashMessage('付款失敗，請稍後再試', 'warning').to_tuple()
