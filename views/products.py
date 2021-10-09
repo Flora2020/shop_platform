@@ -98,20 +98,19 @@ def new_product():
 @require_login
 def edit_product(product_id):
     product = Product.find_by_id(product_id)
-    # TODO: fix: user can edit product created by other user
+    if not product:
+        flash(*product_not_found)
+        return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
+
+    if product.seller_id != session['user']['id']:
+        flash(*product_not_found)
+        return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
+
     form = NewProduct()
     categories = Category.query.with_entities(Category.id, Category.name).all()
     form.category.choices = [(category.id, category.name) for category in categories]
 
     if request.method == 'GET':
-        if not product:
-            flash(*product_not_found)
-            return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
-
-        if product.seller_id != session['user']['id']:
-            flash(*product_not_found)
-            return redirect(url_for('products.get_seller_products', seller_id=session['user']['id']))
-
         form.name.data = product.name
         form.price.data = product.price
         form.image.data = product.image_url
