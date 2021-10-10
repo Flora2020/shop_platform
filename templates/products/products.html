@@ -1,9 +1,13 @@
 {% extends 'base.html' %}
 {% from 'macros/price_and_cart_btn.html' import price_and_cart_btn %}
+{% from 'macros/pagination.html' import pagination %}
 
 {% block content %}
-<div class="row">
 
+{{ pagination(paginate, endpoint, seller_id) }}
+
+<div class="row">
+    {% if products %}
     {% for product in products %}
     <div class="col-sm-6 col-md-4 col-lg-3 mb-3">
         <div class="card border-0">
@@ -19,6 +23,13 @@
         </div>
     </div>
     {% endfor %}
-
+    {% else %}
+    <div class="alert alert-warning" role="alert">
+        目前沒有商品
+    </div>
+    {% endif %}
 </div>
+
+{{ pagination(paginate, endpoint, seller_id) }}
+
 {% endblock %}

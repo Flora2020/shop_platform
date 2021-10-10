@@ -9,19 +9,35 @@ from common.generate_many_flash_message import generate_many_flash_message
 from common.forms import NewProduct
 
 product_blueprint = Blueprint('products', __name__)
+products_per_page = 20
 
 
 @product_blueprint.route('/')
 def get_products():
-    products = Product.query \
+    page = request.args.get('page')
+    if not page or not page.isnumeric():
+        page = 1
+    else:
+        page = int(page) or 1
+
+    pagination = Product.query \
         .with_entities(Product.id, Product.name, Product.price, Product.image_url, Product.seller_id) \
-        .filter(Product.inventory > 0).order_by(Product.insert_time.desc()).all()
+        .filter(Product.inventory > 0).order_by(Product.insert_time.desc()) \
+        .paginate(page=page, per_page=products_per_page, error_out=False, max_per_page=None)
+
+    products = pagination.items
+    if not products and page != 1:
+        return redirect(url_for('.get_products', page=pagination.pages))
 
     user_id = None
     if session.get('user') and session['user'].get('id'):
         user_id = session['user']['id']
 
-    return render_template('products/products.html', products=products, user_id=user_id)
+    return render_template('products/products.html',
+                           products=products,
+                           user_id=user_id,
+                           paginate=pagination,
+                           endpoint='products.get_products')
 
 
 @product_blueprint.route('/<string:product_id>', methods=['GET'])
@@ -43,24 +59,36 @@ def get_product(product_id):
 
 @product_blueprint.route('/seller/<string:seller_id>')
 def get_seller_products(seller_id):
+    page = request.args.get('page')
+    if not page or not page.isnumeric():
+        page = 1
+    else:
+        page = int(page) or 1
+
     if not seller_id.isnumeric():
         flash(*seller_products_not_found)
         return redirect(url_for('.get_products'))
 
-    products = Product.query \
+    pagination = Product.query \
         .with_entities(Product.id, Product.name, Product.price, Product.image_url, Product.seller_id) \
         .filter(Product.seller_id == seller_id, Product.inventory > 0) \
-        .order_by(Product.insert_time.desc()).all()
+        .order_by(Product.insert_time.desc()) \
+        .paginate(page=page, per_page=products_per_page, error_out=False, max_per_page=None)
 
-    if products:
-        user_id = None
-        if session.get('user') and session['user'].get('id'):
-            user_id = session['user']['id']
+    products = pagination.items
+    if not products and page != 1:
+        return redirect(url_for('.get_seller_products', seller_id=seller_id, page=pagination.pages))
 
-        return render_template('products/products.html', products=products, user_id=user_id)
-    else:
-        flash(*seller_products_not_found)
-        return redirect(url_for('.get_products'))
+    user_id = None
+    if session.get('user') and session['user'].get('id'):
+        user_id = session['user']['id']
+
+    return render_template('products/products.html',
+                           products=products,
+                           user_id=user_id,
+                           paginate=pagination,
+                           endpoint='products.get_seller_products',
+                           seller_id=seller_id)
 
 
 @product_blueprint.route('/new', methods=['GET', 'POST'])
