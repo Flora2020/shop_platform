@@ -1,5 +1,6 @@
 from functools import partial
 from flask import Blueprint, redirect, url_for, request, render_template, flash, session
+from sqlalchemy import and_, desc, asc
 
 from models import Product, Category
 from models.user.decorators import require_login
@@ -10,19 +11,50 @@ from common.forms import NewProduct
 
 product_blueprint = Blueprint('products', __name__)
 products_per_page = 20
+product_order_select_options = {
+    'sorting_field': [('insert_time', u'上架日期'), ('price', '單價')],
+    'order': [('desc', 'Z→A'), ('asc', 'A→Z')]
+}
+sorting_field_default = product_order_select_options['sorting_field'][0][0]
+order_default = product_order_select_options['order'][0][0]
+sorting_field_to_model_col = {
+    'insert_time': Product.insert_time,
+    'price': Product.price
+}
 
 
 @product_blueprint.route('/')
 def get_products():
     page = request.args.get('page')
+    keyword = request.args.get('keyword', '').strip()
+    category_id = request.args.get('category_id', '')
+    sorting_field = request.args.get('sorting_field', sorting_field_default)
+    order = request.args.get('order', order_default)
+
+    categories = Category.query.with_entities(Category.id, Category.name).all()
+    filter_conditions = []
+    sort_conditions = []
+
     if not page or not page.isnumeric():
         page = 1
     else:
         page = int(page) or 1
 
+    if keyword:
+        filter_conditions.append(Product.name.like(f'%{keyword}%'))
+    if category_id and category_id.isnumeric():
+        category_id = int(category_id)
+        filter_conditions.append(Product.category_id == category_id)
+    if order == 'desc':
+        sort_conditions.append(desc(sorting_field_to_model_col.get(sorting_field, Product.insert_time)))
+    else:
+        sort_conditions.append(asc(sorting_field_to_model_col.get(sorting_field, Product.price)))
+
     pagination = Product.query \
         .with_entities(Product.id, Product.name, Product.price, Product.image_url, Product.seller_id) \
-        .filter(Product.inventory > 0).order_by(Product.insert_time.desc()) \
+        .filter(Product.inventory > 0) \
+        .filter(and_(*filter_conditions)) \
+        .order_by(*sort_conditions) \
         .paginate(page=page, per_page=products_per_page, error_out=False, max_per_page=None)
 
     products = pagination.items
@@ -37,7 +69,15 @@ def get_products():
                            products=products,
                            user_id=user_id,
                            paginate=pagination,
-                           endpoint='products.get_products')
+                           endpoint='products.get_products',
+                           categories=categories,
+                           order_options=product_order_select_options,
+                           selected_options={
+                               'keyword': keyword,
+                               'category_id': category_id,
+                               'sorting_field': sorting_field,
+                               'order': order
+                           })
 
 
 @product_blueprint.route('/<string:product_id>', methods=['GET'])
@@ -60,6 +100,15 @@ def get_product(product_id):
 @product_blueprint.route('/seller/<string:seller_id>')
 def get_seller_products(seller_id):
     page = request.args.get('page')
+    keyword = request.args.get('keyword', '').strip()
+    category_id = request.args.get('category_id', '')
+    sorting_field = request.args.get('sorting_field', sorting_field_default)
+    order = request.args.get('order', order_default)
+
+    categories = Category.query.with_entities(Category.id, Category.name).all()
+    filter_conditions = []
+    sort_conditions = []
+
     if not page or not page.isnumeric():
         page = 1
     else:
@@ -69,10 +118,21 @@ def get_seller_products(seller_id):
         flash(*seller_products_not_found)
         return redirect(url_for('.get_products'))
 
+    if keyword:
+        filter_conditions.append(Product.name.like(f'%{keyword}%'))
+    if category_id and category_id.isnumeric():
+        category_id = int(category_id)
+        filter_conditions.append(Product.category_id == category_id)
+    if order == 'desc':
+        sort_conditions.append(desc(sorting_field_to_model_col.get(sorting_field, Product.insert_time)))
+    else:
+        sort_conditions.append(asc(sorting_field_to_model_col.get(sorting_field, Product.price)))
+
     pagination = Product.query \
         .with_entities(Product.id, Product.name, Product.price, Product.image_url, Product.seller_id) \
         .filter(Product.seller_id == seller_id, Product.inventory > 0) \
-        .order_by(Product.insert_time.desc()) \
+        .filter(and_(*filter_conditions)) \
+        .order_by(*sort_conditions) \
         .paginate(page=page, per_page=products_per_page, error_out=False, max_per_page=None)
 
     products = pagination.items
@@ -88,7 +148,15 @@ def get_seller_products(seller_id):
                            user_id=user_id,
                            paginate=pagination,
                            endpoint='products.get_seller_products',
-                           seller_id=seller_id)
+                           seller_id=seller_id,
+                           categories=categories,
+                           order_options=product_order_select_options,
+                           selected_options={
+                               'keyword': keyword,
+                               'category_id': category_id,
+                               'sorting_field': sorting_field,
+                               'order': order
+                           })
 
 
 @product_blueprint.route('/new', methods=['GET', 'POST'])

@@ -1,0 +1,54 @@
+{% macro filter_and_sort_products(categories, order_options, selected_options, seller_id) %}
+
+{% if seller_id %}
+<form class="row g-3 my-3" action="{{ url_for('products.get_seller_products', seller_id=seller_id) }}" method="GET">
+{% else %}
+<form class="row g-3 my-3" action="{{ url_for('products.get_products') }}" method="GET">
+{% endif %}
+    <div class="col-md-12 col-lg-6">
+        <div class="input-group">
+            <span class="input-group-text">篩選</span>
+            <input type="text" aria-label="keyword" class="form-control" maxlength="60"
+                   name="keyword" placeholder="商品名稱" value="{{ selected_options['keyword'] }}"
+            >
+            <select class="form-control form-select" aria-label="select category" name="category_id">
+                <option value="">所有分類</option>
+                {% for category in categories %}
+                    {% if category.id == selected_options['category_id'] %}
+                    <option value="{{ category.id }}" selected>{{ category.name }}</option>
+                    {% else %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="col-md-12 col-lg-5">
+        <div class="input-group">
+            <span class="input-group-text">排序</span>
+            <select class="form-control form-select" aria-label="select category" name="sorting_field">
+                {% for option in order_options['sorting_field'] %}
+                    {% if option[0] == selected_options['sorting_field'] %}
+                    <option value="{{ option[0] }}" selected>{{ option[1] }}</option>
+                    {% else %}
+                    <option value="{{ option[0] }}">{{ option[1] }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            <select class="form-control form-select" aria-label="select category" name="order">
+                {% for option in order_options['order'] %}
+                    {% if option[0] == selected_options['order'] %}
+                    <option value="{{ option[0] }}" selected>{{ option[1] }}</option>
+                    {% else %}
+                    <option value="{{ option[0] }}">{{ option[1] }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="col-md-12 col-lg-1 d-grid text-end">
+        <button class="btn btn-secondary" type="submit">搜尋</button>
+    </div>
+</form>
+    <br/>
+{% endmacro %}

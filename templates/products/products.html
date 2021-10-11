@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
+{% from 'macros/filter_and_sort_products.html' import filter_and_sort_products %}
 {% from 'macros/price_and_cart_btn.html' import price_and_cart_btn %}
 {% from 'macros/pagination.html' import pagination %}
 
 {% block content %}
 
-{{ pagination(paginate, endpoint, seller_id) }}
+{{ filter_and_sort_products(categories, order_options, selected_options, seller_id) }}
 
 <div class="row">
     {% if products %}
@@ -30,6 +31,6 @@
     {% endif %}
 </div>
 
-{{ pagination(paginate, endpoint, seller_id) }}
+{{ pagination(paginate, endpoint, seller_id, selected_options) }}
 
 {% endblock %}
