@@ -22,8 +22,8 @@ def get_cart_items():
 
     if session.get(USER) and session.get(USER).get(CART_ID):
         row = CartItem.query \
-            .with_entities(CartItem.product_id, CartItem.quantity, Product.name,
-                           Product.price, Product.image_url, Product.seller_id) \
+            .with_entities(CartItem.product_id, CartItem.quantity, Product.name, Product.price, Product.image_url,
+                           Product.inventory, Product.seller_id) \
             .join(Product) \
             .filter(CartItem.cart_id == session.get(USER).get(CART_ID)) \
             .filter(CartItem.product_id == Product.id) \
@@ -43,6 +43,7 @@ def get_cart_items():
                 'price': f'{data["price"]:,}',
                 'image_url': data['image_url'],
                 'subtotal': f'{subtotal:,}',
+                'inventory': data['inventory'],
                 'seller_id': data['seller_id'],
                 'seller_name': seller_name[0]
             }
@@ -51,7 +52,8 @@ def get_cart_items():
     elif session.get(CART_ITEMS):
         for item in session[CART_ITEMS]:
             product = Product.query \
-                .with_entities(Product.name, Product.price, Product.image_url, Product.seller_id, User.display_name) \
+                .with_entities(Product.name, Product.price, Product.image_url, Product.inventory, Product.seller_id,
+                               User.display_name) \
                 .join(User) \
                 .filter(Product.id == item[PRODUCT_ID]) \
                 .first()
@@ -64,6 +66,7 @@ def get_cart_items():
             item['price'] = f'{product.price:,}'
             item['subtotal'] = f'{subtotal:,}'
             item['image_url'] = product.image_url
+            item['inventory'] = product.inventory
             item['seller_id'] = product.seller_id
             item['seller_name'] = product.display_name
 
@@ -120,13 +123,17 @@ def new_cart(product_id):
 
 @cart_blueprint.route('/edit/<string:product_id>', methods=['POST'])
 def edit_cart_item(product_id):
-    if not Product.find_by_id(product_id):
+    product = Product.find_by_id(product_id)
+    if not product:
         flash(*product_not_found)
         return redirect(previous_page())
 
     form = EditCartItem()
     if form.validate_on_submit():
         cart_id = session.get(USER) and session[USER].get(CART_ID)
+        if product.inventory < form.quantity.data:
+            flash(f'商品「{product.name}」庫存不足，目前庫存數量為 {product.inventory}', 'warning')
+            return redirect(previous_page())
 
         if cart_id:
             cart_item = CartItem.find_by_composite_primary_key(cart_id=cart_id, product_id=product_id)
@@ -146,6 +153,8 @@ def edit_cart_item(product_id):
             _, cart_item = result
             cart_item[QUANTITY] = form.quantity.data
             session.modified = True
+
+        flash(f'商品「{product.name}」數量已更新', 'success')
 
     else:
         flash_warning_messages = partial(generate_many_flash_message, category='warning')

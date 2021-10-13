@@ -10,7 +10,7 @@ class OrderItem(db.Model):
     name = db.Column(db.String(60), nullable=False)
     price = db.Column(db.Integer, nullable=False)
     image_url = db.Column(db.String(100))
-    quantity = db.Column(db.Integer,  nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
     insert_time = db.Column(db.DateTime, nullable=False, default=datetime.now)
     update_time = db.Column(db.DateTime, onupdate=datetime.now, nullable=False, default=datetime.now)
 
@@ -27,8 +27,8 @@ class OrderItem(db.Model):
 
     @classmethod
     def find_by_order_id(cls, order_id):
-        return cls.query.filter_by(order_id=order_id).first()
+        return cls.query.filter_by(order_id=order_id).all()
 
     @classmethod
     def find_by_product_id(cls, product_id):
-        return cls.query.filter_by(product_id=product_id).first()
+        return cls.query.filter_by(product_id=product_id).all()

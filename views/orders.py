@@ -45,8 +45,8 @@ def new_order_item(seller_id):
     order = Order(
         amount=0,
         recipient=session.get(USER).get('display_name'),
-        cell_phone=session.get(USER).get('cell_phone') or 'None',
-        address=session.get(USER).get('address') or 'None',
+        cell_phone=session.get(USER).get('cell_phone') or '',
+        address=session.get(USER).get('address') or '',
         shipping_status_id=SHIPPING_STATUS['backlog'],
         payment_status_id=PAYMENT_STATUS['unpaid'],
         order_status_id=ORDER_STATUS['unchecked'],
@@ -65,20 +65,40 @@ def new_order_item(seller_id):
         flash(*product_not_found)
         return url_for('carts.get_cart_items')
 
+    cart_items_list = []
+    order_item_list = []
+    product_list = []
     for item in cart_items:
-        amount += item.product.price * item.quantity
-        OrderItem(
+        product = item.product
+        if product.inventory < item.quantity:
+            flash(f'商品「{product.name}」庫存不足，目前庫存數量為 {product.inventory}', 'warning')
+            return redirect(url_for('carts.get_cart_items'))
+            break
+
+        amount += product.price * item.quantity
+        order_item = OrderItem(
             order_id=order.id,
             product_id=item.product_id,
-            name=item.product.name,
-            price=item.product.price,
-            image_url=item.product.image_url,
+            name=product.name,
+            price=product.price,
+            image_url=product.image_url,
             quantity=item.quantity
-        ).save_to_db()
-        item.delete()
+        )
+        product.inventory -= item.quantity
+        order_item_list.append(order_item)
+        cart_items_list.append(item)
+        product_list.append(product)
 
     order.amount = amount
     order.save_to_db()
+
+    for item in order_item_list:
+        item.save_to_db()
+    for item in product_list:
+        item.save_to_db()
+    for item in cart_items_list:
+        item.delete()
+
     return redirect(url_for('.checkout', order_id=str(order.id)))
 
 
@@ -377,6 +397,14 @@ def cancel_order(order_id):
     if order.shipping_status_id != SHIPPING_STATUS['backlog']:
         flash(*only_backlog_order_is_cancelable)
         return redirect(url_for('.get_orders'))
+
+    canceled_products = Product.query.with_entities(Product, OrderItem.quantity) \
+        .join(OrderItem).filter(OrderItem.order_id == order_id, OrderItem.product_id == Product.id) \
+        .all()
+
+    for item in canceled_products:
+        item.Product.inventory += item.quantity
+        item.Product.save_to_db()
 
     order.order_status_id = ORDER_STATUS['canceled']
     order.save_to_db()

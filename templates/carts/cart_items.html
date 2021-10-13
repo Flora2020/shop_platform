@@ -36,9 +36,12 @@
                             {{ form.csrf_token }}
                             <div class="input-group">
                                 <span class="input-group-text">數量：</span>
-                                {{ form.quantity(class="form-control", type="number", min=1, max=2147483647, step=1,
-                                autocomplete="on",
-                                value=item.quantity, required="required", autofocus="autofocus") }}
+                                <div class="form-floating form-control">
+                                    {{ form.quantity(class="form-control border-0", type="number", min=1, max=2147483647, step=1,
+                                    autocomplete="on", id=item.product_id, placeholder=item.inventory,
+                                    value=item.quantity, required="required", autofocus="autofocus") }}
+                                    <label for="{{item.product_id}}">庫存數量：{{ item.inventory }}</label>
+                                </div>
                                 <button class="btn btn-secondary" type="submit">更新</button>
                             </div>
                         </form>
@@ -53,7 +56,7 @@
 
 <div class="text-end my-3">
     {% for seller in sellers %}
-    <form class="d-inline" action="{{ url_for('orders.new_order_item', seller_id=seller[0]) }}" method="POST">
+    <form class="d-inline-block mb-2" action="{{ url_for('orders.new_order_item', seller_id=seller[0]) }}" method="POST">
         <button class="btn btn-secondary" type="submit">結帳 {{ seller[1] }} 之商品</button>
     </form>
     {% endfor %}
