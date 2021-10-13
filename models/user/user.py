@@ -68,7 +68,7 @@ class User(db.Model):
                 product_id=item[PRODUCT_ID]
             )
             if cart_item:
-                cart_item.quantity += 1
+                cart_item.quantity += item[QUANTITY]
                 cart_item.save_to_db()
                 continue
 
@@ -83,7 +83,7 @@ class User(db.Model):
                 update_time=item[UPDATE_TIME]
             ).save_to_db()
 
-        session[CART_ITEMS] = None
+        session[CART_ITEMS] = []
         return self.cart
 
     @classmethod
