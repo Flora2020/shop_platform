@@ -16,6 +16,7 @@ wtforms = {extras = ["email"], version = "*"}
 werkzeug = "*"
 flask-mail = "*"
 pycryptodome = "*"
+mysqlclient = "*"
 
 [dev-packages]
 
