@@ -17,6 +17,7 @@ werkzeug = "*"
 flask-mail = "*"
 pycryptodome = "*"
 mysqlclient = "*"
+gunicorn = "*"
 
 [dev-packages]
 
