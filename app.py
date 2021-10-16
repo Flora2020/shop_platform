@@ -11,7 +11,7 @@ def create_app():
         load_dotenv()
 
     app = Flask(__name__)
-    app.secret_key = os.urandom(64)
+    app.secret_key = os.environ.get('SESSION_SECRET_KEY')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
     app.config['SQLALCHEMY_ECHO'] = True
