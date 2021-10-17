@@ -7,6 +7,7 @@
               {% else %}
                 {{ url_for('products.edit_product', product_id=product_id) }}
               {% endif %}"
+      enctype="multipart/form-data"
       novalidate>
     {{ form.csrf_token }}
     <div class="col-md-6">
@@ -38,9 +39,9 @@
 
     <div class="col-md-12">
         {{ form.image.label(class="form-label") }}
-        {{ form.image(class="form-control", type="url", maxlength=100) }}
+        {{ form.image(class="form-control", type="file", accept=".jpg,.jpge,.png,.gif") }}
         <div class="invalid-feedback">
-            請輸入格式正確的網址。網址不可超過 100 個英文字。
+            只接受 .jpg、.jpge、.png、.gif 檔案。
         </div>
     </div>
     <div class="col-md-12">

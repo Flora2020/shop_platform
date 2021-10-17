@@ -174,3 +174,7 @@ cython_debug/
 
 # PyCharm
 .idea/
+
+# shop_platform
+static/product_images/*
+!static/product_images/no-image.jpg

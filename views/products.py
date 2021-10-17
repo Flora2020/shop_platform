@@ -1,6 +1,8 @@
 from functools import partial
+from uuid import uuid4
 from flask import Blueprint, redirect, url_for, request, render_template, flash, session
 from sqlalchemy import and_, desc, asc
+from werkzeug.utils import secure_filename
 
 from models import Product, Category
 from models.user.decorators import require_login
@@ -11,6 +13,8 @@ from common.forms import NewProduct
 
 product_blueprint = Blueprint('products', __name__)
 products_per_page = 20
+upload_folder = 'static/product_images/'
+no_image_filename = 'no-image.jpg'
 product_order_select_options = {
     'sorting_field': [('insert_time', u'上架日期'), ('price', '單價')],
     'order': [('desc', 'Z→A'), ('asc', 'A→Z')]
@@ -167,9 +171,16 @@ def new_product():
     form.category.choices = [(category.id, category.name) for category in categories]
     if form.validate_on_submit():
         seller_id = session['user']['id']
+        image = form.image.data
+        if image:
+            image_name = f'{uuid4().hex}.{secure_filename(image.filename).rsplit(".", 1)[1]}'
+            image.save(f'{upload_folder}{image_name}')
+        else:
+            image_name = no_image_filename
+
         product = Product(name=form.name.data,
                           price=form.price.data,
-                          image_url=form.image.data,
+                          image_url=f'/{upload_folder}{image_name}',
                           inventory=form.inventory.data,
                           description=form.description.data,
                           seller_id=seller_id,
@@ -216,9 +227,14 @@ def edit_product(product_id):
 
     if request.method == 'POST':
         if form.validate_on_submit():
+            image = form.image.data
+            if image:
+                image_name = f'{uuid4().hex}.{secure_filename(image.filename).rsplit(".", 1)[1]}'
+                image.save(f'{upload_folder}{image_name}')
+                product.image_url = f'/{upload_folder}{image_name}'
+
             product.name = form.name.data
             product.price = form.price.data
-            product.image_url = form.image.data
             product.inventory = form.inventory.data
             product.description = form.description.data
             product.category = Category.find_by_id(form.category.data)

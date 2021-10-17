@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed, FileSize
 from wtforms import StringField, IntegerField, TextAreaField, SelectField
-from wtforms.validators import InputRequired, Optional, NumberRange, URL
+from wtforms.validators import InputRequired, Optional, NumberRange
 
 from common.forms.custom_validators import byte_length
 
@@ -22,12 +23,11 @@ class NewProduct(FlaskForm):
         ]
     )
 
-    image = StringField(
-        u'商品圖片網址',
+    image = FileField(
+        u'商品圖片',
         validators=[
-            Optional(),
-            URL(message=u'圖片網址格式錯誤'),
-            byte_length(max=100, message=u'圖片網址字數，須在 100 個英文字以內')
+            FileAllowed(upload_set=['jpg', 'jpge', 'png', 'gif'], message=u'只接受 .jpg、.jpge、.png、.gif 檔案'),
+            FileSize(max_size=1048576, message=u'圖片大小需小於 1 MB')
         ]
     )
 
