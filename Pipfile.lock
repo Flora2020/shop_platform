@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2602cb09535d55b3e0647559a6f6b445f66694a97560e8e94f747fa5b292a4e6"
+            "sha256": "f94c2b8855fe42fd7ba597e35494bc7900127709d0dae4380a7784ec3139fa9f"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -60,6 +60,13 @@
             ],
             "index": "pypi",
             "version": "==2.0.2"
+        },
+        "flask-imgur": {
+            "hashes": [
+                "sha256:2e1fb495d565a2caaa0606a7bd5de4138a068f634c74eea9abead33bc318623c"
+            ],
+            "index": "pypi",
+            "version": "==0.1"
         },
         "flask-mail": {
             "hashes": [
@@ -326,6 +333,14 @@
             ],
             "index": "pypi",
             "version": "==0.19.1"
+        },
+        "six": {
+            "hashes": [
+                "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926",
+                "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"
+            ],
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
+            "version": "==1.16.0"
         },
         "sqlalchemy": {
             "hashes": [

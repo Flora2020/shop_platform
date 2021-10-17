@@ -18,6 +18,7 @@ flask-mail = "*"
 pycryptodome = "*"
 mysqlclient = "*"
 gunicorn = "*"
+flask-imgur = "*"
 
 [dev-packages]
 
