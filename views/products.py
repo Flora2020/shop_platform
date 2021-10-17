@@ -10,6 +10,7 @@ from common.utils import pretty_date
 from common.flash_message import product_not_found, seller_products_not_found, product_update_success
 from common.generate_many_flash_message import generate_many_flash_message
 from common.forms import NewProduct
+from helpers.products_view_helper import upload_to_imgur
 
 product_blueprint = Blueprint('products', __name__)
 products_per_page = 20
@@ -171,16 +172,11 @@ def new_product():
     form.category.choices = [(category.id, category.name) for category in categories]
     if form.validate_on_submit():
         seller_id = session['user']['id']
-        image = form.image.data
-        if image:
-            image_name = f'{uuid4().hex}.{secure_filename(image.filename).rsplit(".", 1)[1]}'
-            image.save(f'{upload_folder}{image_name}')
-        else:
-            image_name = no_image_filename
+        image_url = upload_to_imgur(form.image.data) or f'/{upload_folder}{no_image_filename}'
 
         product = Product(name=form.name.data,
                           price=form.price.data,
-                          image_url=f'/{upload_folder}{image_name}',
+                          image_url=image_url,
                           inventory=form.inventory.data,
                           description=form.description.data,
                           seller_id=seller_id,
@@ -227,14 +223,9 @@ def edit_product(product_id):
 
     if request.method == 'POST':
         if form.validate_on_submit():
-            image = form.image.data
-            if image:
-                image_name = f'{uuid4().hex}.{secure_filename(image.filename).rsplit(".", 1)[1]}'
-                image.save(f'{upload_folder}{image_name}')
-                product.image_url = f'/{upload_folder}{image_name}'
-
             product.name = form.name.data
             product.price = form.price.data
+            product.image_url = upload_to_imgur(form.image.data) or product.image_url
             product.inventory = form.inventory.data
             product.description = form.description.data
             product.category = Category.find_by_id(form.category.data)
