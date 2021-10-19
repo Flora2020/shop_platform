@@ -1,8 +1,6 @@
 from functools import partial
-from uuid import uuid4
 from flask import Blueprint, redirect, url_for, request, render_template, flash, session
 from sqlalchemy import and_, desc, asc
-from werkzeug.utils import secure_filename
 
 from models import Product, Category
 from models.user.decorators import require_login
