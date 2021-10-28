@@ -1,5 +1,8 @@
+import os
 from dotenv import load_dotenv
-load_dotenv()  # aes_encrypt needs environ variables
+
+if os.environ.get('FLASK_ENV', '') != 'production':
+    load_dotenv()  # aes_encrypt needs environ variables
 
 
 def test_aes_encrypt():

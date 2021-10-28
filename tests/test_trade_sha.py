@@ -1,5 +1,8 @@
+import os
 from dotenv import load_dotenv
-load_dotenv()  # get_payment_data.py needs environ variables
+
+if os.environ.get('FLASK_ENV', '') != 'production':
+    load_dotenv()  # get_payment_data.py needs environ variables
 
 
 def test_get_trade_sha():
