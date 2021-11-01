@@ -1,8 +1,14 @@
-import requests
+import pytest
+from app import create_app
 
-URL = 'http://127.0.0.1:5000/users/register'
+
+@pytest.fixture()
+def client():
+    app = create_app()
+    with app.test_client() as client:
+        yield client
 
 
-def test_get_new_user_page():
-    req = requests.request('GET', URL)
-    assert req.status_code == 200
+def test_get_new_user_page(client):
+    response = client.get('/users/register')
+    assert response.status_code == 200
