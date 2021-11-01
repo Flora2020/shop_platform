@@ -22,6 +22,7 @@ flask-imgur = "*"
 
 [dev-packages]
 pytest = "*"
+requests = "*"
 
 [requires]
 python_version = "3.9"
