@@ -48,6 +48,15 @@ def test_register_a_user(client, csrf_token):
     user.delete()
 
 
+def test_unique_display_name(client, csrf_token, registered_user):
+    data = {'csrf_token': csrf_token, 'display_name': registered_user.display_name, 'email': 'pytest_user2@example.com',
+            'password': '12345678', 'confirm_password': '12345678'}
+    response = client.post('/users/register', data=data)
+    soup = BeautifulSoup(response.data, 'html.parser')
+    alert_div = soup.find('div', class_='alert-warning')
+    assert alert_div.string.strip() == '此顯示名稱已有人使用，請更換顯示名稱'
+
+
 def test_login_page(client):
     response = client.get('/users/login')
     assert response.status_code == 200
