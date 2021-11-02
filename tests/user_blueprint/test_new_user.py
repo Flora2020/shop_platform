@@ -20,6 +20,16 @@ def csrf_token(client):
     yield csrf_token
 
 
+@pytest.fixture()
+def registered_user(client, csrf_token):
+    data = {'csrf_token': csrf_token, 'display_name': 'pytest_user', 'email': 'pytest_user@example.com',
+            'password': '12345678', 'confirm_password': '12345678'}
+    client.post('/users/register', data=data)
+    user = User.find_by_email(data['email'])
+    yield user
+    user.delete()
+
+
 def test_get_new_user_page(client):
     response = client.get('/users/register')
     assert response.status_code == 200
@@ -36,3 +46,14 @@ def test_register_a_user(client, csrf_token):
            and user.password != data['password']
 
     user.delete()
+
+
+def test_login_page(client):
+    response = client.get('/users/login')
+    assert response.status_code == 200
+
+
+def test_login(client, registered_user):
+    data = {'display_name': registered_user.display_name, 'password': registered_user.password}
+    response = client.post('/users/login', data=data)
+    assert response.status_code == 200
