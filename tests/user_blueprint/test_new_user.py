@@ -11,19 +11,21 @@ def client():
         yield client
 
 
+@pytest.fixture()
+def csrf_token(client):
+    response = client.get('/users/register')
+    soup = BeautifulSoup(response.data, 'html.parser')
+    csrf_input = soup.find(id='csrf_token')
+    csrf_token = csrf_input.get('value')
+    yield csrf_token
+
+
 def test_get_new_user_page(client):
     response = client.get('/users/register')
     assert response.status_code == 200
 
 
-def test_register_a_user(client):
-    # get csrf_token
-    response = client.get('/users/register')
-    soup = BeautifulSoup(response.data, 'html.parser')
-    csrf_input = soup.find(id='csrf_token')
-    csrf_token = csrf_input.get('value')
-
-    # register a user
+def test_register_a_user(client, csrf_token):
     data = {'csrf_token': csrf_token, 'display_name': 'pytest_user', 'email': 'pytest_user@example.com',
             'password': '12345678', 'confirm_password': '12345678'}
     client.post('/users/register', data=data)
