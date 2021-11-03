@@ -22,6 +22,8 @@ def create_app():
     app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
     app.config['MAIL_USE_TLS'] = False
     app.config['MAIL_USE_SSL'] = True
+    if os.environ.get('FLASK_ENV', '') == 'test':
+        app.config['SQLALCHEMY_DATABASE_URI'] += '_test'
     db.init_app(app)
     migrate.init_app(app, db)
     seeder.init_app(app, db)
