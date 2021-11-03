@@ -22,7 +22,6 @@ flask-imgur = "*"
 
 [dev-packages]
 pytest = "*"
-requests = "*"
 beautifulsoup4 = "*"
 
 [requires]
