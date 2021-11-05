@@ -52,6 +52,7 @@ def get_products():
         sort_conditions.append(desc(sorting_field_to_model_col.get(sorting_field, Product.insert_time)))
     else:
         sort_conditions.append(asc(sorting_field_to_model_col.get(sorting_field, Product.price)))
+    sort_conditions.append(asc(Product.id))
 
     pagination = Product.query \
         .with_entities(Product.id, Product.name, Product.price, Product.image_url, Product.seller_id) \
@@ -130,6 +131,7 @@ def get_seller_products(seller_id):
         sort_conditions.append(desc(sorting_field_to_model_col.get(sorting_field, Product.insert_time)))
     else:
         sort_conditions.append(asc(sorting_field_to_model_col.get(sorting_field, Product.price)))
+    sort_conditions.append(asc(Product.id))
 
     pagination = Product.query \
         .with_entities(Product.id, Product.name, Product.price, Product.image_url, Product.seller_id) \
